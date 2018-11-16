@@ -5,6 +5,8 @@
 #include "polygonobject.h"
 #include "program.h"
 
+#include <vector>
+
 enum ShaderMode
 {
 	Beauty = 0,
@@ -39,16 +41,32 @@ public:
 	RenderEngine();
 	~RenderEngine();
 
+	//---------------------------------------------------------------------------
+	/// Prepares OpenGL.
+	/// @return				False if an error occurred.
+	//---------------------------------------------------------------------------
 	bool Init();
 
 	// executes unit tests to check the OGL functionality
 	// must be called after Init()
 	bool UnitTest();
 
-	// must be called after Init()
+	//---------------------------------------------------------------------------
+	/// Creates the scene data. Must be called after Init().
+	/// @return				False if an error occurred.
+	//---------------------------------------------------------------------------
 	bool CreateScene();
+
+	//---------------------------------------------------------------------------
+	/// Updates the scene.
+	/// @return				False if an error occurred.
+	//---------------------------------------------------------------------------
 	void UpdateScene(const SceneSettings& settings);
 
+	//---------------------------------------------------------------------------
+	/// Renders the scene.
+	/// @return				False if an error occurred.
+	//---------------------------------------------------------------------------
 	bool Render();
 
 	bool Close();
@@ -79,6 +97,8 @@ private:
 
 
 	SceneSettings _settings;
+
+	std::vector<glm::vec3> _sphereVec;
 	
 };
 

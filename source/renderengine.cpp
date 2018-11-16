@@ -1,10 +1,11 @@
 #include "renderengine.h"
 
 // see https://github.com/Dav1dde/glad
-#include "glad/glad.h"
+#include <glad/glad.h>
 
 #include "log.h"
 #include <string>
+#include <cstdlib>
 #include <gl/GLU.h>
 
 #include "modeling.h"
@@ -53,16 +54,6 @@ bool RenderEngine::Init()
 	DATA_MSG((const char*)glGetString(GL_VERSION));
 	DATA_MSG("GLSL Version:");
 	DATA_MSG((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
-
-	// requires OGL 4.3
-	/*
-	glEnable(GL_DEBUG_OUTPUT);                  // Enables debug output
-	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);      // Synchronous debug output, later omit on release builds
-	glDebugMessageCallback(debugCallback, nullptr);
-	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true);
-	glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0,
-		GL_DEBUG_SEVERITY_NOTIFICATION, -1, "Start debugging");
-		*/
 	
 	glEnable(GL_DEPTH_TEST);
 
@@ -126,6 +117,11 @@ bool RenderEngine::CreateScene()
 	_groundPlaneModelMatrix = glm::scale(_groundPlaneModelMatrix, glm::vec3(10, 2, 2));
 	_groundPlaneModelMatrix = glm::rotate(_groundPlaneModelMatrix, glm::radians(90.0f), glm::vec3(1, 0, 0));
 
+
+	_sphereVec.push_back(glm::vec3(1, 1, -1.0));
+	_sphereVec.push_back(glm::vec3(-1, -1, -1.0));
+	_sphereVec.push_back(glm::vec3(1, -1, -1.0));
+
 	INFO_MSG("Scene setup done...");
 
 	return true;
@@ -140,6 +136,34 @@ void RenderEngine::UpdateScene(const SceneSettings& settings)
 
 	_step = _step + _settings._timeOff;
 
+	// simulation
+
+	std::srand(_step);
+
+	glm::vec3 dynObject = glm::vec3(settings._dynamicObjectX, settings._dynamicObjectY, -1.0);
+
+	const int cnt = _sphereVec.size();
+
+	for (int i = 0; i < cnt; ++i)
+	{
+		glm::vec3 pos = _sphereVec.at(i);
+		glm::vec3 diff = dynObject - pos;
+		float length = glm::length(diff);
+		if (length < 0.6)
+		{
+			float random = float(std::rand()) / RAND_MAX;
+
+			diff = diff * 0.03f;
+			// diff.x +=( random * 0.1f);
+			//diff.y += (random * 0.1f);
+
+			pos = pos + diff;
+			pos.z = -1.0;
+
+			_sphereVec[i] = pos;
+		}
+	}
+
 }
 
 #include <iostream>
@@ -147,13 +171,8 @@ void RenderEngine::UpdateScene(const SceneSettings& settings)
 bool RenderEngine::Render()
 {
 	// set up buffers
-	// todo: make sub-function
-	if (_settings._renderMode == 99)
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	else if (_settings._renderMode == 7)
-		glClearColor(0.9f, 0.5f, 0.3f, 1.0f);
-	else
-		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	//glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -176,12 +195,10 @@ bool RenderEngine::Render()
 		_shader.SetUniform("camPos", _camPos);
 		_shader.SetUniform("u_animation", _step);
 		_shader.SetUniform("u_shadingMode", _settings._renderMode);
-		//_shader.SetUniform("noiseTexture", unsigned int(0));
-		//_shader.SetUniform("renderMode", unsigned int(_settings._renderMode));
-		//_shader.SetUniform("sphereMode", unsigned int(_settings._sphereMode));
 		_shader.SetUniform("u_objectMode", unsigned int(_settings._objectMode));
 		_shader.SetUniform("u_dynX", _settings._dynamicObjectX);
 		_shader.SetUniform("u_dynY", _settings._dynamicObjectY);
+		_shader.SetUniform("u_spheres", &_sphereVec.front(), 9);
 		
 
 		if (IsFalse(CheckOglError(), "OpenGL Error.", ERROR_CONTEXT)) return false;
@@ -203,19 +220,8 @@ bool RenderEngine::Render()
 		if (IsFalse(_groundShader.Use(), "Could not enable ground shader", ERROR_CONTEXT)) return false;
 		if (IsFalse(_groundShader.SetUniform("MVP", MVPground), "Could not set MVP.", ERROR_CONTEXT)) return false;
 		if (IsFalse(_groundShader.SetUniform("ModelMatrix", _groundPlaneModelMatrix), "Could not set model matrix.", ERROR_CONTEXT)) return false;
-		//if (IsFalse(_groundShader.SetUniform("camPos", _camPos), "Could not set camPos.", ERROR_CONTEXT)) return false;
-		//if (IsFalse(_groundShader.SetUniform("time", _step), "Could not set time.", ERROR_CONTEXT)) return false;
-		//if (IsFalse(_groundShader.SetUniform("noiseTexture", unsigned int(0)), "Could not set noiseTexture.", ERROR_CONTEXT)) return false;
-		//if (IsFalse(_groundShader.SetUniform("renderMode", unsigned int(_settings._renderMode)), "Could not set render mode.", ERROR_CONTEXT)) return false;
-		//if (IsFalse(_groundShader.SetUniform("sphereMode", unsigned int(_settings._sphereMode)), "Could not set sphere mode.", ERROR_CONTEXT)) return false;
-		// if (IsFalse(_groundShader.SetUniform("objectMode", unsigned int(_settings._objectMode)), "Could not set sphere mode.", ERROR_CONTEXT)) return false;
-
 
 		_groundShader.SetUniform("u_animation", _step);
-		//_groundShader.SetUniform("u_shadingMode", _settings._renderMode);
-		//_shader.SetUniform("noiseTexture", unsigned int(0));
-		//_shader.SetUniform("renderMode", unsigned int(_settings._renderMode));
-		//_shader.SetUniform("sphereMode", unsigned int(_settings._sphereMode));
 		_groundShader.SetUniform("u_objectMode", unsigned int(_settings._objectMode));
 		_groundShader.SetUniform("u_dynX", _settings._dynamicObjectX);
 		_groundShader.SetUniform("u_dynY", _settings._dynamicObjectY);

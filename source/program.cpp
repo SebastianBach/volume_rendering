@@ -9,9 +9,11 @@
 #include "glad/glad.h"
 #include <string>
 
+#include <glm/gtc/type_ptr.hpp>
+
 // glGetUniformLocation returns -1 if the given name could not be found
 // see https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml
-#define LOCATION_FAIL -1
+static const int LOCATION_FAIL = -1;
 
 
 int ShaderProgram::GetUniformLocation(const char * name)
@@ -256,6 +258,18 @@ bool ShaderProgram::SetUniform(const char* name, unsigned int v)
 	if (IsValue(location, LOCATION_FAIL, GetUniformErrorString(name).c_str(), ERROR_CONTEXT)) return false;
 
 	glUniform1i(location, v);
+	return true;
+}
+
+bool ShaderProgram::SetUniform(const char* name, const glm::vec3* const v, int count)
+{
+	if (IsNull(_program, "Program not set.", ERROR_CONTEXT)) return false;
+	if (IsNullptr(v, "Invalid argument.", ERROR_CONTEXT)) return false;
+
+	const GLint location = GetUniformLocation(name);
+	if (IsValue(location, LOCATION_FAIL, GetUniformErrorString(name).c_str(), ERROR_CONTEXT)) return false;
+
+	glUniform3fv(location, count, glm::value_ptr(v[0]));
 	return true;
 }
 

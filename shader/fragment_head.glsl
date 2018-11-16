@@ -14,21 +14,35 @@ uniform int sphereMode;
 
 uniform int renderMode;
 
-
+//---------------------------------------------------------------------------
 // object mode
 // 0: spheres
 // 1: metaballs
 // 2: defomred spheres
+//---------------------------------------------------------------------------
 uniform int u_objectMode;
 
+//---------------------------------------------------------------------------
+/// Animation time value.
+//---------------------------------------------------------------------------
 uniform float u_animation;
 
+//---------------------------------------------------------------------------
+/// Shading mode.
+//---------------------------------------------------------------------------
 uniform int u_shadingMode;
 
 // user controlled object
 uniform float u_dynX;
 uniform float u_dynY;
 
+
+
+uniform vec3 u_spheres[3];
+
+//---------------------------------------------------------------------------
+/// Returns the vector to the light source.
+//---------------------------------------------------------------------------
 vec3 GetLightDir()
 {
 	return normalize(vec3(-0.2,1,1.0));
@@ -48,9 +62,9 @@ const int ERROR_ILLEGALMODE = 2;
 const float CONST_PI = 3.1415;
 const float CONST_TAU = 6.2831;
 
-// ----------------------------------------------------------------------
+//---------------------------------------------------------------------------
 /// Structure storing data from sampling space with SampleSpace().
-// ----------------------------------------------------------------------
+//---------------------------------------------------------------------------
 struct SampleGlobalResult
 {
 	bool _inside;
@@ -63,20 +77,29 @@ struct SampleGlobalResult
 };
 
 
-// ----------------------------------------------------------------------
+//---------------------------------------------------------------------------
 /// Animation Utlity
-// ----------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------
+/// Returns an animated value in the range [0, 1].
+//---------------------------------------------------------------------------
 float GetAnimation01(float timeFactor)
 {
 	return (sin(u_animation * timeFactor) + 1.0) * .5;
 }
 
+//---------------------------------------------------------------------------
+/// Returns an animated value in the range [-1, 1].
+//---------------------------------------------------------------------------
 float GetAnimation11(float timeFactor)
 {
 	return sin(u_animation * timeFactor);
 }
 
+//---------------------------------------------------------------------------
+/// Returns the coordinates of the user-controlled object.
+//---------------------------------------------------------------------------
 vec3 GetDynamicObject()
 {
 	return vec3(u_dynX, u_dynY, -1.0);
@@ -88,6 +111,9 @@ vec3 GetDynamicObject()
 /// SPHERE MODE
 // ----------------------------------------------------------------------
 
+//---------------------------------------------------------------------------
+/// Returns uv-coordinates for the given vector.
+//---------------------------------------------------------------------------
 vec2 GetUVsFromNormal(vec3 normal)
 {
 	// https://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere
@@ -105,6 +131,9 @@ struct SphereSettings
 	vec3 _color;
 };
 
+//---------------------------------------------------------------------------
+/// Checks if the given point is within the given sphere.
+//---------------------------------------------------------------------------
 SampleGlobalResult CheckGlobalSphere(vec3 pos, SphereSettings settings)
 {
 	SampleGlobalResult res;
@@ -126,6 +155,9 @@ SampleGlobalResult CheckGlobalSphere(vec3 pos, SphereSettings settings)
 	return res;
 }
 
+//---------------------------------------------------------------------------
+/// Returns the settings of the sphere with the given index.
+//---------------------------------------------------------------------------
 SphereSettings GetSphere(int i)
 {
 	SphereSettings settings;
@@ -148,7 +180,9 @@ SphereSettings GetSphere(int i)
 	return settings;
 }
 
-
+//---------------------------------------------------------------------------
+/// Samples space for spheres.
+//---------------------------------------------------------------------------
 SampleGlobalResult SampleSphereMode(vec3 worldPos)
 {
 	SampleGlobalResult res;
@@ -182,27 +216,46 @@ struct MetaballSettings
 	vec3 _color;
 };
 
+//---------------------------------------------------------------------------
+/// Returns the settings of the metaball with the given index.
+//---------------------------------------------------------------------------
 MetaballSettings GetMetaballSettings(int i)
 {
 	MetaballSettings settings;
 
 	if(i == 0)
 	{
-		float period = GetAnimation11(1.0);
-		vec3 pos1 = vec3(-1*period,0.6,- 1.0);
-		settings._center = pos1;
+		//float period = GetAnimation11(1.0);
+		//vec3 pos1 = vec3(-1*period,0.6,- 1.0);
+		settings._center = u_spheres[0];
 		settings._color = vec3(1.0,0.0,0.0);
 	}
 
 	if(i == 1)
 	{
-		float period = GetAnimation11(1.0);
-		vec3 pos2 = vec3(1*period,0.3, -1.0);
-		settings._center = pos2;
+		//float period = GetAnimation11(1.0);
+		//vec3 pos2 = vec3(1*period,0.3, -1.0);
+		settings._center = u_spheres[1];
 		settings._color = vec3(0.0,1.0,0.0);
 	}
 
 	if(i == 2)
+	{
+		float period = GetAnimation11(7.0);
+		vec3 pos2 = vec3(-1.5*period,0.7, -1.0);
+		settings._center = u_spheres[2];
+		settings._color = vec3(1.0,1.0,0.0);
+	}
+
+	if(i == 3)
+	{
+		float period = GetAnimation11(5.0);
+		vec3 pos2 = vec3(1.5*period,0.3, -1.0);
+		settings._center = pos2;
+		settings._color = vec3(1.0,0.0,1.0);
+	}
+
+	if(i == 4)
 	{
 		settings._center = GetDynamicObject();
 		settings._color = vec3(0.0,0.0,1.0);
@@ -211,7 +264,10 @@ MetaballSettings GetMetaballSettings(int i)
 	return settings;
 }
 
-float MetaballBaseFunction(vec3 pos, vec3 center)
+//---------------------------------------------------------------------------
+/// Metaball function.
+//---------------------------------------------------------------------------
+float MetaballFunction(vec3 pos, vec3 center)
 {
 	// https://en.wikipedia.org/wiki/Metaballs
 	
@@ -231,16 +287,19 @@ struct MetaballFieldSample
 	vec3 _color;
 };
 
-MetaballFieldSample MetaballBaseField(vec3 pos, bool color)
+//---------------------------------------------------------------------------
+/// Samples the world metaball field.
+//---------------------------------------------------------------------------
+MetaballFieldSample MetaballField(vec3 pos, bool color)
 {
 	MetaballFieldSample fieldSample;
 	fieldSample._value = 0.0;
 	fieldSample._color = vec3(0.0);
 
-	for(int i = 0; i < 3; ++i)
+	for(int i = 0; i < 5; ++i)
 	{
 		MetaballSettings settings = GetMetaballSettings(i);
-		fieldSample._value += MetaballBaseFunction(pos, settings._center);
+		fieldSample._value += MetaballFunction(pos, settings._center);
 
 		if(color == true)
 		{
@@ -257,7 +316,9 @@ MetaballFieldSample MetaballBaseField(vec3 pos, bool color)
 	return fieldSample;
 }
 
-
+//---------------------------------------------------------------------------
+/// Calculates a normal vector for the given position the the metaball field.
+//---------------------------------------------------------------------------
 vec3 MetaballBaseNormal(vec3 pos, float value)
 {
 	// partial derivatives
@@ -266,23 +327,26 @@ vec3 MetaballBaseNormal(vec3 pos, float value)
 
 	float d = -0.1;
 	float ff = value;
-	float fx = MetaballBaseField(vec3(pos.x + d, pos.y, pos.z), false)._value;
-	float fy = MetaballBaseField(vec3(pos.x, pos.y + d, pos.z), false)._value;
-	float fz = MetaballBaseField(vec3(pos.x, pos.y, pos.z + d), false)._value;
+	float fx = MetaballField(vec3(pos.x + d, pos.y, pos.z), false)._value;
+	float fy = MetaballField(vec3(pos.x, pos.y + d, pos.z), false)._value;
+	float fz = MetaballField(vec3(pos.x, pos.y, pos.z + d), false)._value;
 
 	vec3 normal = normalize(vec3(fx - ff, fy - ff, fz - ff));
 
 	return normal;
 }
 
+//---------------------------------------------------------------------------
+/// Samples the world space for metaballs.
+//---------------------------------------------------------------------------
 SampleGlobalResult SampleMetaBallMode(vec3 pos)
 {
 	SampleGlobalResult res;
 	res._inside = false;
 
-	MetaballFieldSample fieldSample = MetaballBaseField(pos, true);
+	MetaballFieldSample fieldSample = MetaballField(pos, true);
 	
-	if(fieldSample._value >= 7.2)
+	if(fieldSample._value >= 20.2)
 	{
 		vec3 normal = normalize(MetaballBaseNormal(pos, fieldSample._value));
 
@@ -298,8 +362,8 @@ SampleGlobalResult SampleMetaBallMode(vec3 pos)
 
 // ----------------------------------------------------------------------
 /// Samples the space and returns the result.
-/// @param[in]	worldpos		Sample point in world space position as vec3.
-/// @return						A SamppleResult object. If the sample point is not "inside", res._inside is false and all other values may be undefined.
+/// @param[in]	worldpos	Sample point in world space position as vec3.
+/// @return					A SamppleResult object. If the sample point is not "inside", res._inside is false and all other values may be undefined.
 // ----------------------------------------------------------------------
 SampleGlobalResult SampleGlobalSpace(vec3 worldPos)
 {

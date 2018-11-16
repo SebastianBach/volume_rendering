@@ -34,6 +34,7 @@ void RunLoop(RenderEngine & engine, OSWindow & window)
 	settings._timeStep = true;
 	settings._objectMode = ObjectMode::SPHERE;
 	settings._dynamicObjectX = 0.0;
+	settings._dynamicObjectY = 0.0;
 
 	bool render = true;
 	

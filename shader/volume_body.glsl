@@ -1,8 +1,6 @@
 
 void main()
 {
-
-	// NEW WORLD
 	vec4 newResult;
 
 

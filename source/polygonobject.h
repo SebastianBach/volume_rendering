@@ -7,6 +7,10 @@ public:
 	PolygonObject();
 	~PolygonObject();
 
+	//---------------------------------------------------------------------------
+	/// Prepears the object.
+	/// @return				False if an error occurred.
+	//---------------------------------------------------------------------------
 	bool Init();
 
 	// count is count of all float elements
@@ -15,6 +19,10 @@ public:
 	bool InitNormals(int count, float* values);
 	bool InitIndice(int count, unsigned int* values);
 
+	//---------------------------------------------------------------------------
+	/// Draws the polygon object.
+	/// @return				False if an error occurred.
+	//---------------------------------------------------------------------------
 	bool Draw() const;
 
 	void Clear();

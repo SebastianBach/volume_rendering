@@ -4,6 +4,9 @@
 #include "renderengine.h"
 #include "window.h"
 
+//---------------------------------------------------------------------------
+/// Application event loop.
+//---------------------------------------------------------------------------
 void RunLoop(RenderEngine & engine, OSWindow & window);
 
 #endif
