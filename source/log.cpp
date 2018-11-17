@@ -17,42 +17,42 @@ bool UnitTestLogSystem()
 	// vector::push_back() might throw exception bad_alloc
 	try
 	{
-		const int* const ptr = nullptr;
-		if (IsNullptr(ptr, "", ERROR_CONTEXT) == false)
+		const int* const n_ptr = nullptr;
+		if(IsNullptr(n_ptr, MSG_INFO("")) == false)
 			foundErrors.push_back(std::string("False negative in IsNullptr())"));
 
-		const int value = 123;
-		if (IsNullptr(&value, "", ERROR_CONTEXT) == true)
+		const int iValue = 123;
+		if(IsNullptr(&iValue, MSG_INFO("")) == true)
 			foundErrors.push_back(std::string("False positive in IsNullptr())"));
 
-		if (IsFalse(false, "", ERROR_CONTEXT) == false)
+		if (IsFalse(false, MSG_INFO("")) == false)
 			foundErrors.push_back(std::string("False negative in IsFalse())"));
 
-		if (IsFalse(true, "", ERROR_CONTEXT) == true)
+		if (IsFalse(true, MSG_INFO("")) == true)
 			foundErrors.push_back(std::string("False positive in IsFalse())"));
 
-		if (IsNull(0, "", ERROR_CONTEXT) == false)
+		if (IsNull(0, MSG_INFO("")) == false)
 			foundErrors.push_back(std::string("False negative in IsNull())"));
 
-		if (IsNull(1, "", ERROR_CONTEXT) == true)
+		if (IsNull(1, MSG_INFO("")) == true)
 			foundErrors.push_back(std::string("False positiv in IsNull())"));
 
-		if (IsValue(1, 0, "", ERROR_CONTEXT) == true)
+		if (IsValue(1, 0, MSG_INFO("")) == true)
 			foundErrors.push_back(std::string("False positive in IsValue()"));
 
-		if (IsValue(1, 1, "", ERROR_CONTEXT) == false)
+		if (IsValue(1, 1, MSG_INFO("")) == false)
 			foundErrors.push_back(std::string("False negative in IsValue()"));
 
-		if (IsNotValue(1, 0, "", ERROR_CONTEXT) == false)
+		if (IsNotValue(1, 0, MSG_INFO("")) == false)
 			foundErrors.push_back(std::string("False negative in IsNotValue()"));
 
-		if (IsNotValue(1, 1, "", ERROR_CONTEXT) == true)
+		if (IsNotValue(1, 1, MSG_INFO("")) == true)
 			foundErrors.push_back(std::string("False positive in IsNotValue()"));
 	}
 	catch (std::bad_alloc& ba)
 	{
 		g_unitTestMode = false;
-		WriteToLog(ba.what(), MsgType::Error, ERROR_CONTEXT);
+		ErrorMessage(MSG_INFO(ba.what()));
 		return false;
 	}
 
@@ -63,7 +63,7 @@ bool UnitTestLogSystem()
 	{
 		for (const std::string& error : foundErrors)
 		{
-			WriteToLog(error.c_str(), MsgType::Error, ERROR_CONTEXT);
+			ErrorMessage(MSG_INFO(error.c_str()));
 		}
 
 		return false;
@@ -147,7 +147,7 @@ void PrintInfo()
 	// Memory etc.
 }
 
-void WriteToLog(const char* message, MsgType type, const char* file, int line, const char* function)
+void error_sys_intern::WriteToLog(const char* message, MsgType type, const char* file, int line, const char* function)
 {
 	// do nothing in unit test mode
 	if (g_unitTestMode)

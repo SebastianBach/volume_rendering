@@ -78,7 +78,7 @@ bool OSWindow::Init(int w, int h)
 
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms633587%28v=vs.85%29.aspx
 	const bool resultRegister = RegisterClassEx(&windowClass);
-	if (IsFalse(resultRegister, "Could not register window class", ERROR_CONTEXT))
+	if (IsFalse(resultRegister, MSG_INFO("Could not register window class")))
 		return false;
 
 	// // http://msdn.microsoft.com/en-us/library/windows/desktop/ms632680%28v=vs.85%29.aspx
@@ -96,7 +96,7 @@ bool OSWindow::Init(int w, int h)
 		hinstance,						// hinstance
 		NULL);
 
-	if (IsNullptr(windowHandle, "Could not create window handle", ERROR_CONTEXT))
+	if (IsNullptr(windowHandle, MSG_INFO("Could not create window handle")))
 		return false;
 
 	_handle = windowHandle;
@@ -117,11 +117,11 @@ bool OSWindow::Init(int w, int h)
 
 bool OSWindow::CreateOglContext()
 {
-	if (IsNullptr(_handle, "Handle not set.", ERROR_CONTEXT)) return false;
+	if (IsNullptr(_handle, MSG_INFO("Handle not set."))) return false;
 
 	HDC   hdc = GetDC((HWND)_handle);
 
-	if (IsNullptr(hdc, "Could not get device context.", ERROR_CONTEXT)) return false;
+	if (IsNullptr(hdc, MSG_INFO("Could not get device context."))) return false;
 
 	// set pixel format
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/dd368826%28v=vs.85%29.aspx
@@ -160,7 +160,7 @@ bool OSWindow::CreateOglContext()
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/dd374379%28v=vs.85%29.aspx
 	_oglContext = wglCreateContext(hdc);
 
-	if (IsNullptr(_oglContext, "Could not create OGL context.", ERROR_CONTEXT)) return false;
+	if (IsNullptr(_oglContext, MSG_INFO("Could not create OGL context."))) return false;
 
 	_hdc = hdc;
 
@@ -169,12 +169,12 @@ bool OSWindow::CreateOglContext()
 
 bool OSWindow::MakeCurrentContext()
 {
-	if (IsNullptr(_hdc, "HDC not set", ERROR_CONTEXT)) return false;
-	if (IsNullptr(_oglContext, "OGL context not set", ERROR_CONTEXT)) return false;
+	if (IsNullptr(_hdc, MSG_INFO("HDC not set"))) return false;
+	if (IsNullptr(_oglContext, MSG_INFO("OGL context not set"))) return false;
 
 	const BOOL res = wglMakeCurrent(_hdc, _oglContext);
 
-	if (IsNotValue(res, TRUE, "Could not make OGL contex the current context.", ERROR_CONTEXT))
+	if (IsNotValue(res, TRUE, MSG_INFO("Could not make OGL contex the current context.")))
 		return false;
 
 	return true;
@@ -198,12 +198,12 @@ bool OSWindow::Swap() const
 {
 	const BOOL res = SwapBuffers(_hdc);
 
-	if (IsNotValue(res, TRUE, "Could not swap buffers.", ERROR_CONTEXT))
+	if (IsNotValue(res, TRUE, MSG_INFO("Could not swap buffers.")))
 		return false;
 
 	const BOOL resInvaidate = InvalidateRect((HWND)_handle, nullptr, false);
 
-	if (IsNotValue(resInvaidate, TRUE, "Could not invalidate rectangle.", ERROR_CONTEXT))
+	if (IsNotValue(resInvaidate, TRUE, MSG_INFO("Could not invalidate rectangle.")))
 		return false;
 
 	return true;
@@ -211,7 +211,7 @@ bool OSWindow::Swap() const
 
 bool OSWindow::Show()
 {
-	if (IsNullptr(_handle, "Window handle not set", ERROR_CONTEXT))
+	if (IsNullptr(_handle, MSG_INFO("Window handle not set")))
 		return false;
 
 	// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-showwindow

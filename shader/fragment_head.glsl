@@ -105,8 +105,6 @@ vec3 GetDynamicObject()
 	return vec3(u_dynX, u_dynY, -1.0);
 }
 
-
-
 // ----------------------------------------------------------------------
 /// SPHERE MODE
 // ----------------------------------------------------------------------
@@ -338,6 +336,7 @@ vec3 MetaballBaseNormal(vec3 pos, float value)
 
 //---------------------------------------------------------------------------
 /// Samples the world space for metaballs.
+// todo: fast mode to skip normal calculation
 //---------------------------------------------------------------------------
 SampleGlobalResult SampleMetaBallMode(vec3 pos)
 {
@@ -363,7 +362,7 @@ SampleGlobalResult SampleMetaBallMode(vec3 pos)
 // ----------------------------------------------------------------------
 /// Samples the space and returns the result.
 /// @param[in]	worldpos	Sample point in world space position as vec3.
-/// @return					A SamppleResult object. If the sample point is not "inside", res._inside is false and all other values may be undefined.
+/// @return					A SampleGlobalResult object. If the sample point is not "inside", res._inside is false and all other values may be undefined.
 // ----------------------------------------------------------------------
 SampleGlobalResult SampleGlobalSpace(vec3 worldPos)
 {
@@ -489,6 +488,7 @@ bool HardShadow(vec3 pos)
 	vec3 sampleStep = sampleDirection * scale; 
 	pos = pos + sampleStep;
 
+	// TODO: use "steps"
 	int steps = int((2.5 - pos.y)  / scale);
 
 	SampleGlobalResult res = SampleToSurface(pos, sampleStep, 500);
@@ -633,7 +633,7 @@ vec3 FinalCompositing(SampleGlobalResult res)
 
 		color = color *  light * shadow + (specular * shadow) + (volumeLight * 0.3);
 		color += (fresnel* 0.6 *baseColor);
-		color += (res._color * 0.1);
+		color += (baseColor * 0.1);
 		return color;
 	}
 

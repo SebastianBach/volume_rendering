@@ -3,6 +3,7 @@
 
 #include <string>
 #include "glm.hpp"
+#include "glad/glad.h"
 
 class ShaderProgram
 {
@@ -61,7 +62,7 @@ public:
 
 private:
 
-	int GetUniformLocation(const char* name);
+	GLint GetUniformLocation(const char* name);
 	bool MakeShader(unsigned int type, const std::string& text, unsigned int& store);
 
 private:

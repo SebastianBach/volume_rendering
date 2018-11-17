@@ -20,23 +20,23 @@ PolygonObject::~PolygonObject()
 
 bool PolygonObject::Init()
 {
-	if (IsNotValue(_vao, 0U, "_vao already set.", ERROR_CONTEXT)) return false;
+	if (IsNotValue(_vao, 0U, MSG_INFO("_vao already set."))) return false;
 
 	glGenVertexArrays(1, &_vao);
 
-	if (IsNull(_vao, "Faild to generate VAO", ERROR_CONTEXT)) return false;
+	if (IsNull(_vao, MSG_INFO("Faild to generate VAO"))) return false;
 
 	return true;
 }
 
 bool PolygonObject::InitVertice(int count, float* values)
 {
-	if (IsNull(_vao, "VAO not set.", ERROR_CONTEXT)) return false;
-	if (IsNullptr(values, "Invalid vertice values", ERROR_CONTEXT)) return false;
-	if (IsNull(count, "Invalid count argument.", ERROR_CONTEXT)) return false;
+	if (IsNull(_vao, MSG_INFO("VAO not set."))) return false;
+	if (IsNullptr(values, MSG_INFO("Invalid vertice values"))) return false;
+	if (IsNull(count, MSG_INFO("Invalid count argument."))) return false;
 
 	glGenBuffers(1, &_vertexBuffer);
-	if (IsNull(_vertexBuffer, "Could not create vertex buffer.", ERROR_CONTEXT)) return false;
+	if (IsNull(_vertexBuffer, MSG_INFO("Could not create vertex buffer."))) return false;
 
 	// store data
 	glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
@@ -57,12 +57,12 @@ bool PolygonObject::InitVertice(int count, float* values)
 
 bool PolygonObject::InitUVs(int count, float* values)
 {
-	if (IsNull(_vao, "VAO not set.", ERROR_CONTEXT)) return false;
-	if (IsNullptr(values, "Invalid UV values", ERROR_CONTEXT)) return false;
-	if (IsNull(count, "Invalid count argument.", ERROR_CONTEXT)) return false;
+	if (IsNull(_vao, MSG_INFO("VAO not set."))) return false;
+	if (IsNullptr(values, MSG_INFO("Invalid UV values"))) return false;
+	if (IsNull(count, MSG_INFO("Invalid count argument."))) return false;
 
 	glGenBuffers(1, &_uvBuffer);
-	if (IsNull(_uvBuffer, "Could not create UV buffer.", ERROR_CONTEXT)) return false;
+	if (IsNull(_uvBuffer, MSG_INFO("Could not create UV buffer."))) return false;
 
 	// store data
 	glBindBuffer(GL_ARRAY_BUFFER, _uvBuffer);
@@ -83,13 +83,13 @@ bool PolygonObject::InitUVs(int count, float* values)
 
 bool PolygonObject::InitNormals(int count, float* values)
 {
-	if (IsNull(_vao, "VAO not set.", ERROR_CONTEXT)) return false;
-	if (IsNullptr(values, "Invalid normals values", ERROR_CONTEXT)) return false;
-	if (IsNull(count, "Invalid count argument.", ERROR_CONTEXT)) return false;
+	if (IsNull(_vao, MSG_INFO("VAO not set."))) return false;
+	if (IsNullptr(values, MSG_INFO("Invalid normals values"))) return false;
+	if (IsNull(count, MSG_INFO("Invalid count argument."))) return false;
 
 	glGenBuffers(1, &_normalBuffer);
 
-	if (IsNull(_normalBuffer, "Could not create normal buffer.", ERROR_CONTEXT)) return false;
+	if (IsNull(_normalBuffer, MSG_INFO("Could not create normal buffer."))) return false;
 
 	// store data
 	glBindBuffer(GL_ARRAY_BUFFER, _normalBuffer);
@@ -111,12 +111,12 @@ bool PolygonObject::InitNormals(int count, float* values)
 
 bool PolygonObject::InitIndice(int count, unsigned int* values)
 {
-	if (IsNull(_vao, "VAO not set.", ERROR_CONTEXT)) return false;
-	if (IsNullptr(values, "Invali indice values", ERROR_CONTEXT)) return false;
-	if (IsNull(count, "Invalid count argument.", ERROR_CONTEXT)) return false;
+	if (IsNull(_vao, MSG_INFO("VAO not set."))) return false;
+	if (IsNullptr(values, MSG_INFO("Invali indice values"))) return false;
+	if (IsNull(count, MSG_INFO("Invalid count argument."))) return false;
 
 	glGenBuffers(1, &_indexBuffer);
-	if (IsNull(_indexBuffer, "Could not create index buffer.", ERROR_CONTEXT)) return false;
+	if (IsNull(_indexBuffer, MSG_INFO("Could not create index buffer."))) return false;
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), values, GL_STATIC_DRAW);
@@ -136,8 +136,8 @@ bool PolygonObject::InitIndice(int count, unsigned int* values)
 
 bool PolygonObject::Draw() const
 {
-	if (IsNull(_vao, "Invalid VAO.", ERROR_CONTEXT)) return false;
-	if (IsNull(_indexCount, "Invalid index count.", ERROR_CONTEXT)) return false;
+	if (IsNull(_vao, MSG_INFO("Invalid VAO."))) return false;
+	if (IsNull(_indexCount, MSG_INFO("Invalid index count."))) return false;
 
 	glBindVertexArray(_vao);
 	glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, ((GLubyte *)NULL + (0)));

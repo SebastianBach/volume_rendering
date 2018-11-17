@@ -129,7 +129,7 @@ void RunLoop(RenderEngine & engine, OSWindow & window)
 			const bool renderResult = engine.Render();
 			if (renderResult == false)
 			{
-				ERROR_MSG("Error on rendering.");
+				ErrorMessage(MSG_INFO("Error on rendering."));
 				run = false;
 			}	
 

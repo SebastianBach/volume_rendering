@@ -13,17 +13,12 @@
 
 // glGetUniformLocation returns -1 if the given name could not be found
 // see https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml
-static const int LOCATION_FAIL = -1;
+static const GLint LOCATION_FAIL = -1;
 
-
-int ShaderProgram::GetUniformLocation(const char * name)
-{
-	return glGetUniformLocation(_program, name);
-}
 
 static bool LoadFile(const char* filename, std::string& text)
 {
-	if (IsNullptr(filename, "Invalid filename argument", ERROR_CONTEXT)) return false;
+	if (IsNullptr(filename, MSG_INFO("Invalid filename argument"))) return false;
 
 	std::ifstream fp;
 
@@ -40,8 +35,8 @@ static bool LoadFile(const char* filename, std::string& text)
 	}
 	else
 	{
-		DATA_MSG(filename);
-		ERROR_MSG("Could not open file.");
+		DataMessage(MSG_INFO(filename));
+		ErrorMessage(MSG_INFO("Could not open file."));
 		return false;
 	}
 
@@ -71,27 +66,27 @@ ShaderProgram::~ShaderProgram()
 
 bool ShaderProgram::Init()
 {
-	if (IsNotValue(_program, 0U, "Programm already created.", ERROR_CONTEXT)) return false;
+	if (IsNotValue(_program, 0U, MSG_INFO("Programm already created."))) return false;
 
 	_program = glCreateProgram();
 
-	if (IsNull(_program, "Could not create program.", ERROR_CONTEXT)) return false;
+	if (IsNull(_program, MSG_INFO("Could not create program."))) return false;
 
 	return true;
 }
 
 bool ShaderProgram::LoadVertexShader(const char* filename)
 {
-	if (IsNullptr(filename, "Illegal filename argument.", ERROR_CONTEXT)) return false;
-	if (IsNull(_program, "Program not set.", ERROR_CONTEXT)) return false;
+	if (IsNullptr(filename, MSG_INFO("Illegal filename argument."))) return false;
+	if (IsNull(_program, MSG_INFO("Program not set."))) return false;
 
 	std::string text;
 
-	if (IsFalse(LoadFile(filename, text), "Could not load file.", ERROR_CONTEXT))
+	if (IsFalse(LoadFile(filename, text), MSG_INFO("Could not load file.")))
 		return false;
 
 	const bool res = MakeShader(GL_VERTEX_SHADER, text, _vertexShader);
-	if (IsFalse(res, "Could not make shader.", ERROR_CONTEXT))
+	if (IsFalse(res, MSG_INFO("Could not make vertex shader.")))
 		return false;
 
 	glAttachShader(_program, _vertexShader);
@@ -101,24 +96,24 @@ bool ShaderProgram::LoadVertexShader(const char* filename)
 
 bool ShaderProgram::LoadFragmentShader(const char* head, const char* body)
 {
-	if (IsNullptr(head, "No head file set.", ERROR_CONTEXT)) return false;
-	if (IsNullptr(body, "No body file set.", ERROR_CONTEXT)) return false;
-	if (IsNull(_program, "Program not set.", ERROR_CONTEXT)) return false;
+	if (IsNullptr(head, MSG_INFO("No head file set."))) return false;
+	if (IsNullptr(body, MSG_INFO("No body file set."))) return false;
+	if (IsNull(_program, MSG_INFO("Program not set."))) return false;
 
 	std::string headText;
 
-	if (IsFalse(LoadFile(head, headText), "Could not load head file.", ERROR_CONTEXT))
+	if (IsFalse(LoadFile(head, headText), MSG_INFO("Could not load head file.")))
 		return false;
 
 	std::string bodyText;
 
-	if (IsFalse(LoadFile(body, bodyText), "Could not load body file.", ERROR_CONTEXT))
+	if (IsFalse(LoadFile(body, bodyText), MSG_INFO("Could not load body file.")))
 		return false;
 
 	const std::string fullText = headText + bodyText;
 	
 	const bool res = MakeShader(GL_FRAGMENT_SHADER, fullText, _fragmentShader);
-	if (IsFalse(res, "Could not make Fragment shader.", ERROR_CONTEXT))
+	if (IsFalse(res, MSG_INFO("Could not make fragment shader.")))
 		return false;
 
 	glAttachShader(_program, _fragmentShader);
@@ -128,17 +123,17 @@ bool ShaderProgram::LoadFragmentShader(const char* head, const char* body)
 
 bool ShaderProgram::LoadFragmentShader(const char* filename)
 {
-	if (IsNullptr(filename, "Invalid filename argument.", ERROR_CONTEXT)) return false;
-	if (IsNull(_program, "Program not set.", ERROR_CONTEXT)) return false;
+	if (IsNullptr(filename, MSG_INFO("Invalid filename argument."))) return false;
+	if (IsNull(_program, MSG_INFO("Program not set."))) return false;
 
 	std::string text;
 
-	if (IsFalse(LoadFile(filename, text), "Could not load File.", ERROR_CONTEXT))
+	if (IsFalse(LoadFile(filename, text), MSG_INFO("Could not load File.")))
 		return false;
 
 	const bool res = MakeShader(GL_FRAGMENT_SHADER, text, _fragmentShader);
 	
-	if (IsFalse(res, "Could make shader.", ERROR_CONTEXT))
+	if (IsFalse(res, MSG_INFO("Could make fragment shader.")))
 		return false;
 
 	glAttachShader(_program, _fragmentShader);
@@ -148,11 +143,11 @@ bool ShaderProgram::LoadFragmentShader(const char* filename)
 
 bool ShaderProgram::MakeShader(unsigned int type, const std::string& text, unsigned int& store)
 {
-	if (IsNull(text.size(), "Shader source is empty.", ERROR_CONTEXT)) return false;
+	if (IsNull(text.size(), MSG_INFO("Shader source is empty."))) return false;
 
 	// create new shader
 	const GLuint shader = glCreateShader(type);
-	if (IsNull(shader, "Could not create shader.", ERROR_CONTEXT)) return false;
+	if (IsNull(shader, MSG_INFO("Could not create shader."))) return false;
 
 	// copy shader source code
 	const char * textPtr = text.c_str();
@@ -172,15 +167,15 @@ bool ShaderProgram::MakeShader(unsigned int type, const std::string& text, unsig
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 
 		// allocate memory for error message
-		GLchar *infoLog = new GLchar[infoLogLength];
-		if (IsNullptr(infoLog, "Could not allocate memory for error message.", ERROR_CONTEXT)) return false;
+		GLchar * const infoLog = new GLchar[infoLogLength];
+		if (IsNullptr(infoLog, MSG_INFO("Could not allocate memory for error message."))) return false;
 		// get error message
 		glGetShaderInfoLog(shader, infoLogLength, NULL, infoLog);
 
 		// print shader source
-		DATA_MSG(text.c_str());
+		//DataMessage(MSG_INFO(text.c_str()));
 		// print error message
-		ERROR_MSG(infoLog);
+		ErrorMessage(MSG_INFO(infoLog));
 
 		// free error message memory
 		delete[] infoLog;
@@ -196,8 +191,8 @@ bool ShaderProgram::MakeShader(unsigned int type, const std::string& text, unsig
 
 bool ShaderProgram::Link()
 {
-	if (IsNull(_program, "Program not set.", ERROR_CONTEXT)) return false;
-	if (IsNotValue(_isLinked, false, "Programm already linked.", ERROR_CONTEXT)) return false;
+	if (IsNull(_program, MSG_INFO("Program not set."))) return false;
+	if (IsNotValue(_isLinked, false, MSG_INFO("Programm already linked."))) return false;
 
 	// link program
 	glLinkProgram(_program);
@@ -207,7 +202,7 @@ bool ShaderProgram::Link()
 	glGetProgramiv(_program, GL_LINK_STATUS, &status);
 
 	// check link status
-	if (IsValue(status, GL_FALSE, "Could not link program.", ERROR_CONTEXT)) return false;
+	if (IsValue(status, GL_FALSE, MSG_INFO("Could not link program."))) return false;
 
 	_isLinked = true;
 
@@ -216,10 +211,10 @@ bool ShaderProgram::Link()
 
 bool ShaderProgram::SetUniform(const char *name, const glm::mat4 & m)
 {
-	if (IsNull(_program, "Program not set.", ERROR_CONTEXT)) return false;
+	if (IsNull(_program, MSG_INFO("Program not set."))) return false;
 
 	const GLint location = GetUniformLocation(name);
-	if (IsValue(location, LOCATION_FAIL, GetUniformErrorString(name).c_str(), ERROR_CONTEXT)) return false;
+	if (IsValue(location, LOCATION_FAIL, MSG_INFO(GetUniformErrorString(name).c_str()))) return false;
 
 	glUniformMatrix4fv(location, 1, GL_FALSE, &m[0][0]);
 
@@ -228,10 +223,10 @@ bool ShaderProgram::SetUniform(const char *name, const glm::mat4 & m)
 
 bool ShaderProgram::SetUniform(const char* name, const glm::vec3 & v)
 {
-	if (IsNull(_program, "Program not set.", ERROR_CONTEXT)) return false;
+	if (IsNull(_program, MSG_INFO("Program not set."))) return false;
 
 	const GLint location = GetUniformLocation(name);
-	if (IsValue(location, LOCATION_FAIL, GetUniformErrorString(name).c_str(), ERROR_CONTEXT)) return false;
+	if (IsValue(location, LOCATION_FAIL, MSG_INFO(GetUniformErrorString(name).c_str()))) return false;
 
 	glUniform3fv(location, 1, &v[0]);
 
@@ -240,10 +235,10 @@ bool ShaderProgram::SetUniform(const char* name, const glm::vec3 & v)
 
 bool ShaderProgram::SetUniform(const char* name, const glm::float32& v)
 {
-	if (IsNull(_program, "Program not set.", ERROR_CONTEXT)) return false;
+	if (IsNull(_program, MSG_INFO("Program not set."))) return false;
 
 	const GLint location = GetUniformLocation(name);
-	if (IsValue(location, LOCATION_FAIL, GetUniformErrorString(name).c_str(), ERROR_CONTEXT)) return false;
+	if (IsValue(location, LOCATION_FAIL, MSG_INFO(GetUniformErrorString(name).c_str()))) return false;
 
 	glUniform1f(location, v);
 
@@ -252,10 +247,10 @@ bool ShaderProgram::SetUniform(const char* name, const glm::float32& v)
 
 bool ShaderProgram::SetUniform(const char* name, unsigned int v)
 {
-	if (IsNull(_program, "Program not set.", ERROR_CONTEXT)) return false;
+	if (IsNull(_program, MSG_INFO("Program not set."))) return false;
 
 	const GLint location = GetUniformLocation(name);
-	if (IsValue(location, LOCATION_FAIL, GetUniformErrorString(name).c_str(), ERROR_CONTEXT)) return false;
+	if (IsValue(location, LOCATION_FAIL, MSG_INFO(GetUniformErrorString(name).c_str()))) return false;
 
 	glUniform1i(location, v);
 	return true;
@@ -263,20 +258,26 @@ bool ShaderProgram::SetUniform(const char* name, unsigned int v)
 
 bool ShaderProgram::SetUniform(const char* name, const glm::vec3* const v, int count)
 {
-	if (IsNull(_program, "Program not set.", ERROR_CONTEXT)) return false;
-	if (IsNullptr(v, "Invalid argument.", ERROR_CONTEXT)) return false;
+	if (IsNull(_program, MSG_INFO("Program not set."))) return false;
+	if (IsNullptr(v, MSG_INFO("Invalid argument."))) return false;
+	if (IsNull(count, MSG_INFO("Invalid argument count."))) return false;
 
 	const GLint location = GetUniformLocation(name);
-	if (IsValue(location, LOCATION_FAIL, GetUniformErrorString(name).c_str(), ERROR_CONTEXT)) return false;
+	if (IsValue(location, LOCATION_FAIL, MSG_INFO(GetUniformErrorString(name).c_str()))) return false;
 
 	glUniform3fv(location, count, glm::value_ptr(v[0]));
 	return true;
 }
 
+GLint ShaderProgram::GetUniformLocation(const char* name)
+{
+	return glGetUniformLocation(_program, name);
+}
+
 bool ShaderProgram::Use() const
 {
-	if (IsNull(_program, "Program not set.", ERROR_CONTEXT)) return false;
-	if (IsFalse(_isLinked, "Program not linked.", ERROR_CONTEXT)) return false;
+	if (IsNull(_program, MSG_INFO("Program not set."))) return false;
+	if (IsFalse(_isLinked, MSG_INFO("Program not linked."))) return false;
 
 	glUseProgram(_program);
 

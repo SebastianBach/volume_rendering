@@ -8,16 +8,16 @@ static bool SetPolyData(PolygonObject& poly,
 	int uvSize, float* const uvData,
 	int indexSize, unsigned int* const indexData)
 {
-	if (IsFalse(poly.InitVertice(vertexSize, vertexData), "Could not set vertice.", ERROR_CONTEXT))
+	if (IsFalse(poly.InitVertice(vertexSize, vertexData), MSG_INFO("Could not set vertice.")))
 		return false;
 
-	if (IsFalse(poly.InitNormals(normalSize, normalData), "Could not set normals.", ERROR_CONTEXT))
+	if (IsFalse(poly.InitNormals(normalSize, normalData), MSG_INFO("Could not set normals.")))
 		return false;
 
-	if (IsFalse(poly.InitUVs(uvSize, uvData), "Could not set UVs.", ERROR_CONTEXT))
+	if (IsFalse(poly.InitUVs(uvSize, uvData), MSG_INFO("Could not set UVs.")))
 		return false;
 
-	if (IsFalse(poly.InitIndice(indexSize, indexData), "Could not set indice.", ERROR_CONTEXT))
+	if (IsFalse(poly.InitIndice(indexSize, indexData), MSG_INFO("Could not set indice.")))
 		return false;
 
 	return true;
@@ -27,7 +27,7 @@ void SetVector(float* const v, unsigned int index, unsigned int count, float x, 
 {
 	if (v == nullptr)
 	{
-		ERROR_MSG("Invalid argument.");
+		ErrorMessage(MSG_INFO("Invalid argument."));
 		return;
 	}
 
@@ -36,7 +36,7 @@ void SetVector(float* const v, unsigned int index, unsigned int count, float x, 
 
 	if (maxOffset >= count)
 	{
-		ERROR_MSG("Index out of bounds.");
+		ErrorMessage(MSG_INFO("Index out of bounds."));
 		return;
 	}
 
@@ -49,7 +49,7 @@ static void SetUV(float* const v, unsigned int index, unsigned int count, float 
 {
 	if (v == nullptr)
 	{
-		ERROR_MSG("Invalid argument.");
+		ErrorMessage(MSG_INFO("Invalid argument."));
 		return;
 	}
 
@@ -58,7 +58,7 @@ static void SetUV(float* const v, unsigned int index, unsigned int count, float 
 
 	if (maxOffset >= count)
 	{
-		ERROR_MSG("Index out of bounds.");
+		ErrorMessage(MSG_INFO("Index out of bounds."));
 		return;
 	}
 
@@ -70,7 +70,7 @@ void SetTriangle(unsigned int* const v, unsigned int index, unsigned int count, 
 {
 	if (v == nullptr)
 	{
-		ERROR_MSG("Invalid argument.");
+		ErrorMessage(MSG_INFO("Invalid argument."));
 		return;
 	}
 
@@ -79,7 +79,7 @@ void SetTriangle(unsigned int* const v, unsigned int index, unsigned int count, 
 
 	if (maxOffset >= count)
 	{
-		ERROR_MSG("Index out of bounds.");
+		ErrorMessage(MSG_INFO("Index out of bounds."));
 		return;
 	}
 
@@ -90,7 +90,7 @@ void SetTriangle(unsigned int* const v, unsigned int index, unsigned int count, 
 
 bool CreateTriangle(PolygonObject& poly)
 {
-	if(IsFalse(poly.Init(), "Could not create polygon object.", ERROR_CONTEXT)) 
+	if(IsFalse(poly.Init(), MSG_INFO("Could not create polygon object.")))
 		return false;
 
 	const unsigned int vertexCount = 3;
@@ -135,7 +135,7 @@ bool CreateTriangle(PolygonObject& poly)
 		uvDataSize, uvData,
 		indexDataSize, indexData);
 
-	if (IsFalse(res, "Could not store polygon data.", ERROR_CONTEXT)) 
+	if (IsFalse(res, MSG_INFO("Could not store polygon data.")))
 		return false;
 
 	return true;
@@ -143,7 +143,7 @@ bool CreateTriangle(PolygonObject& poly)
 
 bool CreatePlane(PolygonObject& poly)
 {
-	if (IsFalse(poly.Init(), "Could not create polygon object.", ERROR_CONTEXT)) 
+	if (IsFalse(poly.Init(), MSG_INFO("Could not create polygon object.")))
 		return false;
 
 	const unsigned int vertexCount = 4;
@@ -192,7 +192,7 @@ bool CreatePlane(PolygonObject& poly)
 		uvDataSize, uvData,
 		indexDataSize, indexData);
 
-	if(IsFalse(res, "Could not store polygon data.", ERROR_CONTEXT)) 
+	if(IsFalse(res, MSG_INFO("Could not store polygon data.")))
 		return false;
 
 	return true;
