@@ -35,6 +35,7 @@ void RunLoop(RenderEngine & engine, OSWindow & window)
 	settings._objectMode = ObjectMode::SPHERE;
 	settings._dynamicObjectX = 0.0;
 	settings._dynamicObjectY = 0.0;
+	settings._noise = NoiseMode::NO_NOISE;
 
 	bool render = true;
 	
@@ -98,6 +99,13 @@ void RunLoop(RenderEngine & engine, OSWindow & window)
 				if (ch == 'D')
 				{
 					settings._objectMode = ObjectMode::DEFORMED_SPHERE;
+				}
+				if (ch == 'N')
+				{
+					if (settings._noise == NoiseMode::NOISE)
+						settings._noise = NoiseMode::NO_NOISE;
+					else
+						settings._noise = NoiseMode::NOISE;
 				}
 
 				if (key == VK_RIGHT)

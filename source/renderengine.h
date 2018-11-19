@@ -24,6 +24,12 @@ enum ObjectMode: unsigned int
 	DEFORMED_SPHERE = 3
 };
 
+enum NoiseMode : unsigned int
+{
+	NOISE = 1,
+	NO_NOISE = 2
+};
+
 struct SceneSettings
 {
 	bool _timeStep;
@@ -33,6 +39,7 @@ struct SceneSettings
 	ObjectMode _objectMode;		// 0: sphere, 1: metaballs, 2: defomred spheres.
 	float _dynamicObjectX;
 	float _dynamicObjectY;
+	NoiseMode _noise;
 };
 
 class RenderEngine

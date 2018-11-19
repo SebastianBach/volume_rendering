@@ -59,6 +59,7 @@ RenderEngine::RenderEngine()
 	_settings._renderMode = ShaderMode::Beauty;
 	_settings._sphereMode = true;
 	_settings._objectMode = ObjectMode::SPHERE;
+	_settings._noise = NoiseMode::NO_NOISE;
 }
 
 RenderEngine::~RenderEngine()
@@ -224,6 +225,8 @@ bool RenderEngine::Render()
 		if (!SetUniform(_shader, "u_animation", _step)) return false;
 		if (!SetUniform(_shader, "camPos", _camPos)) return false;
 		if (!SetUniform(_shader, "noiseTexture", unsigned int(0))) return false;
+		if (!SetUniform(_shader, "u_noise", _settings._noise)) return false;
+		
 
 		if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
 

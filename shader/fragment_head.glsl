@@ -10,6 +10,8 @@ uniform float time;
 
 uniform sampler2D	noiseTexture;
 
+uniform int u_noise;
+
 uniform int sphereMode;
 
 uniform int renderMode;
@@ -207,6 +209,24 @@ SampleGlobalResult SampleSphereMode(vec3 worldPos)
 /// METABALLS
 // ----------------------------------------------------------------------
 
+float GetRandomFieldValue(vec3 worldPos)
+{
+	float z = (worldPos.z + 2.0) * 0.5;
+	float y = (worldPos.y + 1.0) * 0.5;
+	float x = (worldPos.x + 2.0) * 0.25;
+
+	z = z * GetAnimation01(7.0);
+	y = y + z * GetAnimation01(3.0);
+	x = x + z* GetAnimation01(5.0);
+	
+	vec4 value = texture( noiseTexture, vec2(x,y));
+	float res = (value.x) * 2.0;
+	
+	return res;
+}
+
+
+
 /// Returned by GetMetaballSettings()
 struct MetaballSettings
 {
@@ -274,6 +294,9 @@ float MetaballFunction(vec3 pos, vec3 center)
 	float z = pow(pos.z - center.z, 2);
 	float sum = x + y + z;
 	float factor = 1 / sum;
+
+	if(u_noise == 1)
+		factor += GetRandomFieldValue(pos);
 	
 	return factor;
 	
