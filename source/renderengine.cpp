@@ -15,7 +15,7 @@
 
 template<class ...Args> static bool SetUniform(ShaderProgram& prog, const char* name, Args... args)
 {
-	 bool uniformResult = prog.SetUniform(name, (args)...);
+	 const bool uniformResult = prog.SetUniform(name, (args)...);
 
 	 auto composeErrorMessage = [name]()->std::string
 	 {
@@ -35,15 +35,21 @@ template<class ...Args> static bool SetUniform(ShaderProgram& prog, const char* 
 static bool CheckOglError()
 {
 	const auto error = glGetError();
+
 	if (error != GL_NO_ERROR)
 	{
-		const unsigned char* errStr = gluErrorString(error);
-		DataMessage(MSG_INFO(("OpenGL Error at line:")));
-		ErrorMessage(MSG_INFO((const char*)errStr));
 		return false;
 	}
 
 	return true;
+}
+
+static std::string GetOglError()
+{
+	const auto error = glGetError();
+	const unsigned char* errStr = gluErrorString(error);
+	std::string errorStdStr((const char*)errStr);
+	return errorStdStr;
 }
 
 RenderEngine::RenderEngine()
@@ -63,7 +69,7 @@ RenderEngine::~RenderEngine()
 bool RenderEngine::Init()
 {
 	if (IsNull(gladLoadGL(), MSG_INFO("Could not load OGL functions."))) return false;
-	if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
+	if (IsFalse(CheckOglError(), MSG_INFO(GetOglError()))) return false;
 
 	// check OGL version / extensions
 	DataMessage(MSG_INFO("Vendor:"));
@@ -92,24 +98,22 @@ bool UnitTest()
 
 bool RenderEngine::CreateScene()
 {
+	// geometry
 	if (IsFalse(CreatePlane(_viewPlane), MSG_INFO("Could not create view plane."))) return false;
-	if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
 	if (IsFalse(CreatePlane(_ground), MSG_INFO("Could not create ground plane."))) return false;
-	if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
 
-	// front shader
+	if (IsFalse(CheckOglError(), MSG_INFO(GetOglError()))) return false;
+
+	// view shader
 	if (IsFalse(_shader.Init(), MSG_INFO("Shader setup failed."))) return false;
 
 	const bool fragmentShader = _shader.LoadFragmentShader("shader/fragment_head.glsl", "shader/volume_body.glsl");
 	if (IsFalse(fragmentShader, MSG_INFO("Could not load fragment shader."))) return false;
-
-	if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
-
 	const bool vertexShader = _shader.LoadVertexShader("shader/vertex.glsl");
 	if (IsFalse(vertexShader, MSG_INFO("Could not load vertex shader."))) return false;
-
 	if (IsFalse(_shader.Link(), MSG_INFO("Could not link shader."))) return false;
-	if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
+
+	if (IsFalse(CheckOglError(), MSG_INFO(GetOglError()))) return false;
 
 	// ground shader
 	if (IsFalse(_groundShader.Init(), MSG_INFO("Shader setup failed."))) return false;
@@ -117,9 +121,12 @@ bool RenderEngine::CreateScene()
 	if (IsFalse(_groundShader.LoadVertexShader("shader/vertex.glsl"), MSG_INFO("Could not load vertex shader."))) return false;
 	if (IsFalse(_groundShader.Link(), MSG_INFO("Could not link shader."))) return false;
 
-	if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
+	if (IsFalse(CheckOglError(), MSG_INFO(GetOglError()))) return false;
+
+	// noise texture
 
 	if (IsFalse(CreateNoiseTexture(), MSG_INFO("Could not create noise texture."))) return false;
+	if (IsFalse(CheckOglError(), MSG_INFO(GetOglError()))) return false;
 
 	// define standard matrcies
 	_camPos = glm::vec3(0, 0, 2);
@@ -200,12 +207,9 @@ bool RenderEngine::Render()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
-
 	// todo: make sub-function
 	{
 		if (IsFalse(_shader.Use(), MSG_INFO("Could not use shader."))) return false;
-		if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
 
 		const glm::mat4 mv = _viewMatrix * _viewPlaneModelMatrix;
 		const glm::mat4 MVP = _projectionMatrix * mv;
@@ -219,13 +223,11 @@ bool RenderEngine::Render()
 		if (!SetUniform(_shader, "u_shadingMode", _settings._renderMode)) return false;
 		if (!SetUniform(_shader, "u_animation", _step)) return false;
 		if (!SetUniform(_shader, "camPos", _camPos)) return false;
+		if (!SetUniform(_shader, "noiseTexture", unsigned int(0))) return false;
 
 		if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
 
 		if (IsFalse(_viewPlane.Draw(), MSG_INFO("Could not draw view plane."))) return false;
-
-		if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
-
 
 		_shader.End();
 	}
@@ -244,14 +246,17 @@ bool RenderEngine::Render()
 		_groundShader.SetUniform("u_objectMode", unsigned int(_settings._objectMode));
 		_groundShader.SetUniform("u_dynX", _settings._dynamicObjectX);
 		_groundShader.SetUniform("u_dynY", _settings._dynamicObjectY);
+		if (!SetUniform(_groundShader, "u_spheres", &_sphereVec.front(), 9)) return false;
+		if (!SetUniform(_groundShader, "u_shadingMode", _settings._renderMode)) return false;
+		if (!SetUniform(_groundShader, "camPos", _camPos)) return false;
 
 		if (IsFalse(_ground.Draw(), MSG_INFO("Could not draw ground."))) return false;
 
 		_groundShader.End();
-
-		if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
 	}
 
+
+	if (IsFalse(CheckOglError(), MSG_INFO(GetOglError()))) return false;
 
 	return true;
 }

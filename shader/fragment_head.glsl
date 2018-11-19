@@ -445,7 +445,7 @@ SampleGlobalResult SampleToSurface(vec3 startPos, vec3 sampleStep, int count)
 
 
 // ----------------------------------------------------------------------
-/// Shading utlity
+/// Shading utility
 // ----------------------------------------------------------------------
 
 
