@@ -7,6 +7,45 @@
 
 #include <vector>
 
+static const int DYN_OBJECT_INDEX = 0;
+static const int MAX_OBJECT_COUNT = 10;
+
+class ObjectArray
+{
+public:
+	ObjectArray();
+	~ObjectArray();
+
+	bool AddObject(glm::vec3& pos, glm::vec3& color, int& index);
+
+
+	unsigned int GetObjectCount();
+	//bool GetObjectPos(int index, glm::vec3& pos);
+	bool SetObjectPos(int index, glm::vec3& pos);
+	//bool GetObjectColor(int index, glm::vec3& color);
+	//bool SetObjectColor(int index, glm::vec3& color);
+
+	bool SetDynamicObject(float x, float y);
+
+	bool RemoveLastObject();
+
+	
+	int GetDataSize();
+	glm::vec3* GetPositionData();
+	glm::vec3* GetColorData();
+
+	void Animation(float step);
+
+
+private:
+
+	bool IsIndexOK(int index);
+
+	int _count;
+	std::vector<glm::vec3> _pos;
+	std::vector<glm::vec3> _colors;
+};
+
 enum ShaderMode
 {
 	Beauty = 0,
@@ -20,8 +59,7 @@ enum ShaderMode
 enum ObjectMode: unsigned int
 {
 	SPHERE = 1,
-	METABALL = 2,
-	DEFORMED_SPHERE = 3
+	METABALL = 2
 };
 
 enum NoiseMode : unsigned int
@@ -36,10 +74,12 @@ struct SceneSettings
 	unsigned int _renderMode;
 	float _timeOff;
 	bool _sphereMode;
-	ObjectMode _objectMode;		// 0: sphere, 1: metaballs, 2: defomred spheres.
+	ObjectMode _objectMode;		// 0: sphere, 1: metaballs
 	float _dynamicObjectX;
 	float _dynamicObjectY;
 	NoiseMode _noise;
+	bool _addSphere;
+	bool _removeObject;
 };
 
 class RenderEngine
@@ -100,12 +140,12 @@ private:
 	glm::mat4 _groundPlaneModelMatrix;
 
 
-	float _step;
-
+	float _step; // current animation time
 
 	SceneSettings _settings;
 
-	std::vector<glm::vec3> _sphereVec;
+	ObjectArray _objects;
+
 	
 };
 

@@ -12,6 +12,145 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
+ObjectArray::ObjectArray()
+{
+	_count = 0;
+}
+
+ObjectArray::~ObjectArray()
+{
+
+}
+
+bool ObjectArray::AddObject(glm::vec3& pos, glm::vec3& color, int& index)
+{
+	if (_count == MAX_OBJECT_COUNT)
+		return false;
+
+	_pos.push_back(pos);
+	_colors.push_back(color);
+
+	index = _count;
+	_count++;
+
+	return true;
+}
+
+unsigned int  ObjectArray::GetObjectCount()
+{
+	return _count;
+}
+
+bool ObjectArray::SetObjectPos(int index, glm::vec3& pos)
+{
+	if (IsFalse(IsIndexOK(index), MSG_INFO("Index out of range")))
+		return false;
+
+	_pos[index] = pos;
+
+	return true;
+}
+
+bool ObjectArray::SetDynamicObject(float x, float y)
+{
+	if (_count == 0)
+		return false;
+
+	glm::vec3 pos;
+	pos.x = x;
+	pos.y = y;
+	pos.z = -1;
+
+	return SetObjectPos(DYN_OBJECT_INDEX, pos);
+}
+
+bool ObjectArray::RemoveLastObject()
+{
+	if (_count <= 1)
+		return false;
+
+	_pos.pop_back();
+	_colors.pop_back();
+	_count--;
+
+	return true;
+}
+
+glm::vec3* ObjectArray::GetPositionData()
+{
+	return &_pos.front();
+}
+
+glm::vec3* ObjectArray::GetColorData()
+{
+	return &_colors.front();
+}
+
+int ObjectArray::GetDataSize()
+{
+	return _count * 3;
+}
+
+void ObjectArray::Animation(float step)
+{
+	if (_count < 2)
+		return;
+
+	glm::vec3 userObjectPos = _pos[0];
+
+	glm::vec3 center(0, 0.75, -1.0);
+
+	for (int i = 1; i < _count; ++i)
+	{
+		glm::vec3 currentPos = _pos[i];
+
+		glm::vec3 movement(0.0);
+
+		glm::vec3 distance = userObjectPos - currentPos;
+		if (glm::length(distance) < 0.1)
+		{
+			movement = distance;
+			movement.x *= 0.5f;
+			movement.y *= 0.5f;
+			movement.z *= 0.5f;
+		}
+		else
+		{
+			float scale = (6.28f / (float(_count-1))) * float(i);
+
+			float offset = (step*.01f) + scale;
+			float x = sin(offset) * 2.0f;
+			float y = (cos(offset) * 0.7f) + 0.25f;
+
+			glm::vec3 targetPos;
+			targetPos.x = x;
+			targetPos.y = y;
+			targetPos.z = -1.0;
+
+
+			movement = targetPos - currentPos;
+
+			movement.x *= 0.1f;
+			movement.y *= 0.1f;
+			movement.z *= 0.1f;
+		}
+
+		currentPos = currentPos + movement;
+
+		_pos[i] = currentPos;
+	}
+}
+
+bool ObjectArray::IsIndexOK(int index)
+{
+	if (index >= _count)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 
 template<class ...Args> static bool SetUniform(ShaderProgram& prog, const char* name, Args... args)
 {
@@ -56,10 +195,11 @@ RenderEngine::RenderEngine()
 {
 	_noiseTexture = 0;
 	_step = 0.0;
-	_settings._renderMode = ShaderMode::Beauty;
-	_settings._sphereMode = true;
-	_settings._objectMode = ObjectMode::SPHERE;
-	_settings._noise = NoiseMode::NO_NOISE;
+	//_settings._renderMode = ShaderMode::Beauty;
+	//_settings._sphereMode = true;
+	//_settings._objectMode = ObjectMode::SPHERE;
+	//_settings._noise = NoiseMode::NO_NOISE;
+	//_settings._addSphere = false;
 }
 
 RenderEngine::~RenderEngine()
@@ -129,6 +269,21 @@ bool RenderEngine::CreateScene()
 	if (IsFalse(CreateNoiseTexture(), MSG_INFO("Could not create noise texture."))) return false;
 	if (IsFalse(CheckOglError(), MSG_INFO(GetOglError()))) return false;
 
+	// objects
+	glm::vec3 pos = glm::vec3(0, 0.5, -1.0);
+	glm::vec3 color = glm::vec3(0.0, 0.0, 1.0);
+	int objectIndex = 0;
+	_objects.AddObject(pos, color, objectIndex);
+
+	color = glm::vec3(1.0, 0.0, 0.0);
+	pos = glm::vec3(1.0, 0.5, -1.0);
+	_objects.AddObject(pos, color, objectIndex);
+	
+	color = glm::vec3(0.0, 1.0, 0.0);
+	pos = glm::vec3(-1.0, 0.5, -1.0);
+	_objects.AddObject(pos, color, objectIndex);
+
+
 	// define standard matrcies
 	_camPos = glm::vec3(0, 0, 2);
 	_viewMatrix = glm::lookAt(_camPos, glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -145,11 +300,6 @@ bool RenderEngine::CreateScene()
 	_groundPlaneModelMatrix = glm::scale(_groundPlaneModelMatrix, glm::vec3(10, 2, 2));
 	_groundPlaneModelMatrix = glm::rotate(_groundPlaneModelMatrix, glm::radians(90.0f), glm::vec3(1, 0, 0));
 
-
-	_sphereVec.push_back(glm::vec3(1, 1, -1.0));
-	_sphereVec.push_back(glm::vec3(-1, -1, -1.0));
-	_sphereVec.push_back(glm::vec3(1, -1, -1.0));
-
 	DataMessage(MSG_INFO(("Scene setup done...")));
 
 	return true;
@@ -159,39 +309,36 @@ void RenderEngine::UpdateScene(const SceneSettings& settings)
 {
 	_settings = settings;
 
-	if(_settings._timeStep)
-		_step = _step + 0.005f;
+	if (settings._timeStep)
+	{
+		_step = _step + 1.0f;
+	}
 
 	_step = _step + _settings._timeOff;
 
-	// simulation
+	_objects.Animation(_step);
 
-	std::srand(_step);
+	_objects.SetDynamicObject(settings._dynamicObjectX, settings._dynamicObjectY);
 
-	glm::vec3 dynObject = glm::vec3(settings._dynamicObjectX, settings._dynamicObjectY, -1.0);
+	if (settings._removeObject)
+		_objects.RemoveLastObject();
 
-	const int cnt = _sphereVec.size();
-
-	for (int i = 0; i < cnt; ++i)
+	if (settings._addSphere)
 	{
-		glm::vec3 pos = _sphereVec.at(i);
-		glm::vec3 diff = dynObject - pos;
-		float length = glm::length(diff);
-		if (length < 0.6)
-		{
-			float random = float(std::rand()) / RAND_MAX;
+		glm::vec3 pos;
+		pos.x = settings._dynamicObjectX;
+		pos.y = settings._dynamicObjectY;
+		pos.z = -1.0;
 
-			diff = diff * 0.03f;
-			// diff.x +=( random * 0.1f);
-			//diff.y += (random * 0.1f);
+		glm::vec3 color;
+		color.x = 1.0;
+		color.y = 0.0;
+		color.z = 1.0;
 
-			pos = pos + diff;
-			pos.z = -1.0;
-
-			_sphereVec[i] = pos;
-		}
+		int index = 0;
+		if (IsFalse(_objects.AddObject(pos, color, index), MSG_INFO("Could not add object")))
+			return;
 	}
-
 }
 
 #include <iostream>
@@ -208,6 +355,11 @@ bool RenderEngine::Render()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	glm::vec3* posData = _objects.GetPositionData();
+	glm::vec3* colorData = _objects.GetColorData();
+	const int posDataSize = _objects.GetDataSize();
+	const unsigned int objectCnt = _objects.GetObjectCount();
+
 	// todo: make sub-function
 	{
 		if (IsFalse(_shader.Use(), MSG_INFO("Could not use shader."))) return false;
@@ -217,17 +369,16 @@ bool RenderEngine::Render()
 
 		if (!SetUniform(_shader, "MVP", MVP)) return false;
 		if (!SetUniform(_shader, "ModelMatrix", _viewPlaneModelMatrix)) return false;
-		if (!SetUniform(_shader, "u_spheres", &_sphereVec.front(), 9)) return false;
-		if (!SetUniform(_shader, "u_dynY", _settings._dynamicObjectY)) return false;
-		if (!SetUniform(_shader, "u_dynX", _settings._dynamicObjectX)) return false;
 		if (!SetUniform(_shader, "u_objectMode", unsigned int(_settings._objectMode))) return false;
 		if (!SetUniform(_shader, "u_shadingMode", _settings._renderMode)) return false;
 		if (!SetUniform(_shader, "u_animation", _step)) return false;
 		if (!SetUniform(_shader, "camPos", _camPos)) return false;
 		if (!SetUniform(_shader, "noiseTexture", unsigned int(0))) return false;
 		if (!SetUniform(_shader, "u_noise", _settings._noise)) return false;
+		if (!SetUniform(_shader, "u_objectCnt", objectCnt)) return false;
+		if (!SetUniform(_shader, "u_objectPos", posData, posDataSize)) return false;
+		if (!SetUniform(_shader, "u_objectColor", colorData, posDataSize)) return false;
 		
-
 		if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
 
 		if (IsFalse(_viewPlane.Draw(), MSG_INFO("Could not draw view plane."))) return false;
@@ -247,11 +398,11 @@ bool RenderEngine::Render()
 
 		_groundShader.SetUniform("u_animation", _step);
 		_groundShader.SetUniform("u_objectMode", unsigned int(_settings._objectMode));
-		_groundShader.SetUniform("u_dynX", _settings._dynamicObjectX);
-		_groundShader.SetUniform("u_dynY", _settings._dynamicObjectY);
-		if (!SetUniform(_groundShader, "u_spheres", &_sphereVec.front(), 9)) return false;
 		if (!SetUniform(_groundShader, "u_shadingMode", _settings._renderMode)) return false;
 		if (!SetUniform(_groundShader, "camPos", _camPos)) return false;
+		if (!SetUniform(_shader, "u_objectPos", posData, posDataSize)) return false;
+		if (!SetUniform(_shader, "u_objectColor", colorData, posDataSize)) return false;
+		if (!SetUniform(_shader, "u_objectCnt", objectCnt)) return false;
 
 		if (IsFalse(_ground.Draw(), MSG_INFO("Could not draw ground."))) return false;
 

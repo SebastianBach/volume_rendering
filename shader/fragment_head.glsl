@@ -34,13 +34,10 @@ uniform float u_animation;
 //---------------------------------------------------------------------------
 uniform int u_shadingMode;
 
-// user controlled object
-uniform float u_dynX;
-uniform float u_dynY;
 
-
-
-uniform vec3 u_spheres[3];
+uniform int u_objectCnt;
+uniform vec3 u_objectPos[10];
+uniform vec3 u_objectColor[10];
 
 //---------------------------------------------------------------------------
 /// Returns the vector to the light source.
@@ -97,14 +94,6 @@ float GetAnimation01(float timeFactor)
 float GetAnimation11(float timeFactor)
 {
 	return sin(u_animation * timeFactor);
-}
-
-//---------------------------------------------------------------------------
-/// Returns the coordinates of the user-controlled object.
-//---------------------------------------------------------------------------
-vec3 GetDynamicObject()
-{
-	return vec3(u_dynX, u_dynY, -1.0);
 }
 
 // ----------------------------------------------------------------------
@@ -174,7 +163,6 @@ SphereSettings GetSphere(int i)
 	if(i == 1)
 	{
 		settings._radius = 0.25;
-		settings._center = GetDynamicObject();
 	}
 
 	return settings;
@@ -241,42 +229,10 @@ MetaballSettings GetMetaballSettings(int i)
 {
 	MetaballSettings settings;
 
-	if(i == 0)
+	if(i < u_objectCnt)
 	{
-		//float period = GetAnimation11(1.0);
-		//vec3 pos1 = vec3(-1*period,0.6,- 1.0);
-		settings._center = u_spheres[0];
-		settings._color = vec3(1.0,0.0,0.0);
-	}
-
-	if(i == 1)
-	{
-		//float period = GetAnimation11(1.0);
-		//vec3 pos2 = vec3(1*period,0.3, -1.0);
-		settings._center = u_spheres[1];
-		settings._color = vec3(0.0,1.0,0.0);
-	}
-
-	if(i == 2)
-	{
-		float period = GetAnimation11(7.0);
-		vec3 pos2 = vec3(-1.5*period,0.7, -1.0);
-		settings._center = u_spheres[2];
-		settings._color = vec3(1.0,1.0,0.0);
-	}
-
-	if(i == 3)
-	{
-		float period = GetAnimation11(5.0);
-		vec3 pos2 = vec3(1.5*period,0.3, -1.0);
-		settings._center = pos2;
-		settings._color = vec3(1.0,0.0,1.0);
-	}
-
-	if(i == 4)
-	{
-		settings._center = GetDynamicObject();
-		settings._color = vec3(0.0,0.0,1.0);
+		settings._center = u_objectPos[i];
+		settings._color = u_objectColor[i];
 	}
 
 	return settings;
@@ -317,7 +273,7 @@ MetaballFieldSample MetaballField(vec3 pos, bool color)
 	fieldSample._value = 0.0;
 	fieldSample._color = vec3(0.0);
 
-	for(int i = 0; i < 5; ++i)
+	for(int i = 0; i < u_objectCnt; ++i)
 	{
 		MetaballSettings settings = GetMetaballSettings(i);
 		fieldSample._value += MetaballFunction(pos, settings._center);
