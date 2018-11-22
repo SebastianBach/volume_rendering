@@ -6,9 +6,9 @@ void main()
 
 	vec3 startPos = WorldSpacePos.xyz;
 	vec3 sampleDirection = normalize(WorldSpacePos.xyz - camPos);
-	vec3 sampleStep = sampleDirection * 0.002; 
+	vec3 sampleStep = sampleDirection * 0.01; 
 
-	SampleGlobalResult res = SampleToSurface(startPos, sampleStep, 1000);
+	SampleGlobalResult res = SampleToSurface(startPos, sampleStep, 200);
 
 	if(HasError(res))
 	{

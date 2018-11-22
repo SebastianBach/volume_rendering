@@ -8,7 +8,7 @@
 #include <vector>
 
 static const int DYN_OBJECT_INDEX = 0;
-static const int MAX_OBJECT_COUNT = 10;
+static const int MAX_OBJECT_COUNT = 8;
 
 class ObjectArray
 {

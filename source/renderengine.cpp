@@ -11,9 +11,12 @@
 #include "modeling.h"
 
 #include "glm/gtc/matrix_transform.hpp"
+#include <glm/gtx/color_space.hpp>
 
 ObjectArray::ObjectArray()
 {
+	static_assert(DYN_OBJECT_INDEX < MAX_OBJECT_COUNT, "Illegal index.");
+
 	_count = 0;
 }
 
@@ -98,16 +101,23 @@ void ObjectArray::Animation(float step)
 
 	glm::vec3 userObjectPos = _pos[0];
 
-	glm::vec3 center(0, 0.75, -1.0);
+	float hue = 0.0;
+	float hueStep = 1.0 / (float(_count - 1));
 
 	for (int i = 1; i < _count; ++i)
 	{
+		glm::vec3 hsv(hue, 1.0, 1.0);
+		glm::vec3 rgb = glm::rgbColor(hsv);
+		_colors[i] = rgb;
+
+		hue += hueStep;
+
 		glm::vec3 currentPos = _pos[i];
 
 		glm::vec3 movement(0.0);
 
 		glm::vec3 distance = userObjectPos - currentPos;
-		if (glm::length(distance) < 0.1)
+		if (glm::length(distance) < 0.15)
 		{
 			movement = distance;
 			movement.x *= 0.5f;
@@ -300,6 +310,12 @@ bool RenderEngine::CreateScene()
 	_groundPlaneModelMatrix = glm::scale(_groundPlaneModelMatrix, glm::vec3(10, 2, 2));
 	_groundPlaneModelMatrix = glm::rotate(_groundPlaneModelMatrix, glm::radians(90.0f), glm::vec3(1, 0, 0));
 
+
+
+
+
+
+
 	DataMessage(MSG_INFO(("Scene setup done...")));
 
 	return true;
@@ -379,7 +395,7 @@ bool RenderEngine::Render()
 		if (!SetUniform(_shader, "u_objectPos", posData, posDataSize)) return false;
 		if (!SetUniform(_shader, "u_objectColor", colorData, posDataSize)) return false;
 		
-		if (IsFalse(CheckOglError(), MSG_INFO("OpenGL Error."))) return false;
+		if (IsFalse(CheckOglError(), MSG_INFO(GetOglError()))) return false;
 
 		if (IsFalse(_viewPlane.Draw(), MSG_INFO("Could not draw view plane."))) return false;
 

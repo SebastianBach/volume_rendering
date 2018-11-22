@@ -20,7 +20,6 @@ uniform int renderMode;
 // object mode
 // 0: spheres
 // 1: metaballs
-// 2: defomred spheres
 //---------------------------------------------------------------------------
 uniform int u_objectMode;
 
@@ -36,8 +35,8 @@ uniform int u_shadingMode;
 
 
 uniform int u_objectCnt;
-uniform vec3 u_objectPos[10];
-uniform vec3 u_objectColor[10];
+uniform vec3 u_objectPos[8];
+uniform vec3 u_objectColor[8];
 
 //---------------------------------------------------------------------------
 /// Returns the vector to the light source.
@@ -157,7 +156,6 @@ SphereSettings GetSphere(int i)
 		vec3 spherePos = vec3(0.0,0.5,-1.0);
 		spherePos.x = GetAnimation11(2.0);
 		settings._center = spherePos;
-
 	} 
 
 	if(i == 1)

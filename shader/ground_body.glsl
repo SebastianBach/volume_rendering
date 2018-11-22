@@ -21,7 +21,7 @@ void main()
 	if(res._inside)
 	{
 		vec3 finalColor = FinalCompositing(res);
-		newResult = vec4(finalColor * .5, 1.0);
+		newResult = vec4(finalColor * .3, 1.0);
 	}
 	else
 	{
