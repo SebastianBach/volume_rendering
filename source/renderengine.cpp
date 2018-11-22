@@ -385,7 +385,6 @@ bool RenderEngine::Render()
 
 		if (!SetUniform(_shader, "MVP", MVP)) return false;
 		if (!SetUniform(_shader, "ModelMatrix", _viewPlaneModelMatrix)) return false;
-		if (!SetUniform(_shader, "u_objectMode", unsigned int(_settings._objectMode))) return false;
 		if (!SetUniform(_shader, "u_shadingMode", _settings._renderMode)) return false;
 		if (!SetUniform(_shader, "u_animation", _step)) return false;
 		if (!SetUniform(_shader, "camPos", _camPos)) return false;
@@ -413,7 +412,6 @@ bool RenderEngine::Render()
 		if (IsFalse(_groundShader.SetUniform("ModelMatrix", _groundPlaneModelMatrix), MSG_INFO("Could not set model matrix."))) return false;
 
 		_groundShader.SetUniform("u_animation", _step);
-		_groundShader.SetUniform("u_objectMode", unsigned int(_settings._objectMode));
 		if (!SetUniform(_groundShader, "u_shadingMode", _settings._renderMode)) return false;
 		if (!SetUniform(_groundShader, "camPos", _camPos)) return false;
 		if (!SetUniform(_shader, "u_objectPos", posData, posDataSize)) return false;

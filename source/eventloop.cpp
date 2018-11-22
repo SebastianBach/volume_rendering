@@ -79,29 +79,19 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 			}
 			const TCHAR ch = (TCHAR)key;
 
-
-
-			if (ch == 'S')
-			{
-				settings._objectMode = ObjectMode::SPHERE;
-				return;
-			}
-
-			if (ch == 'M')
-			{
-				settings._objectMode = ObjectMode::METABALL;
-				return;
-			}
 			if (ch == 'N')
 			{
 				if (settings._noise == NoiseMode::NOISE)
 					settings._noise = NoiseMode::NO_NOISE;
 				else
 					settings._noise = NoiseMode::NOISE;
+
+				return;
 			}
 			if (ch == 'D')
 			{
 				settings._removeObject = true;
+				return;
 			}
 
 			KeyToRenderMode(ch, settings._renderMode);
@@ -121,10 +111,8 @@ void RunLoop(RenderEngine & engine, OSWindow & window)
 
 	SceneSettings settings;
 	settings._renderMode = ShaderMode::Beauty;
-	settings._sphereMode = true;
 	settings._timeOff = 0.0;
 	settings._timeStep = true;
-	settings._objectMode = ObjectMode::SPHERE;
 	settings._dynamicObjectX = 0.0;
 	settings._dynamicObjectY = 0.0;
 	settings._noise = NoiseMode::NO_NOISE;

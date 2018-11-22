@@ -12,16 +12,7 @@ uniform sampler2D	noiseTexture;
 
 uniform int u_noise;
 
-uniform int sphereMode;
-
 uniform int renderMode;
-
-//---------------------------------------------------------------------------
-// object mode
-// 0: spheres
-// 1: metaballs
-//---------------------------------------------------------------------------
-uniform int u_objectMode;
 
 //---------------------------------------------------------------------------
 /// Animation time value.
@@ -93,102 +84,6 @@ float GetAnimation01(float timeFactor)
 float GetAnimation11(float timeFactor)
 {
 	return sin(u_animation * timeFactor);
-}
-
-// ----------------------------------------------------------------------
-/// SPHERE MODE
-// ----------------------------------------------------------------------
-
-//---------------------------------------------------------------------------
-/// Returns uv-coordinates for the given vector.
-//---------------------------------------------------------------------------
-vec2 GetUVsFromNormal(vec3 normal)
-{
-	// https://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere
-	vec3 d = - normalize(normal);
-	float u = 0.5 + atan(d.z, d.x) / CONST_TAU;
-	float v = 0.5 - asin(d.y) / CONST_PI;
-
-	return vec2(u,v);
-}
-
-struct SphereSettings
-{
-	vec3 _center;
-	float _radius;
-	vec3 _color;
-};
-
-//---------------------------------------------------------------------------
-/// Checks if the given point is within the given sphere.
-//---------------------------------------------------------------------------
-SampleGlobalResult CheckGlobalSphere(vec3 pos, SphereSettings settings)
-{
-	SampleGlobalResult res;
-	res._inside = false;
-
-	vec3 dVec = pos - settings._center;
-	float dist = length(dVec);
-
-	if(dist <= settings._radius)
-	{
-		res._inside = true;
-		res._normal = normalize(dVec);
-		res._color = settings._color;
-		res._hasUVs = true;
-		res._uvs = GetUVsFromNormal(res._normal);	
-		res._pos = pos;
-	}
-
-	return res;
-}
-
-//---------------------------------------------------------------------------
-/// Returns the settings of the sphere with the given index.
-//---------------------------------------------------------------------------
-SphereSettings GetSphere(int i)
-{
-	SphereSettings settings;
-
-	if(i == 0)
-	{
-		settings._radius = 0.5;
-		vec3 spherePos = vec3(0.0,0.5,-1.0);
-		spherePos.x = GetAnimation11(2.0);
-		settings._center = spherePos;
-	} 
-
-	if(i == 1)
-	{
-		settings._radius = 0.25;
-	}
-
-	return settings;
-}
-
-//---------------------------------------------------------------------------
-/// Samples space for spheres.
-//---------------------------------------------------------------------------
-SampleGlobalResult SampleSphereMode(vec3 worldPos)
-{
-	SampleGlobalResult res;
-	res._inside = false;
-	res._error = ERROR_NONE;
-
-	for(int i = 0; i < 2; ++i)
-	{
-		SphereSettings settings = GetSphere(i);
-
-		SampleGlobalResult datata = CheckGlobalSphere(worldPos, settings);
-
-		if(datata._inside == true)
-		{
-			res = datata;
-			break;
-		}
-	}
-
-	return res;
 }
 
 // ----------------------------------------------------------------------
@@ -315,14 +210,14 @@ vec3 MetaballBaseNormal(vec3 pos, float value)
 /// Samples the world space for metaballs.
 // todo: fast mode to skip normal calculation
 //---------------------------------------------------------------------------
-SampleGlobalResult SampleMetaBallMode(vec3 pos)
+SampleGlobalResult SanmpleMetaballMode(vec3 pos)
 {
 	SampleGlobalResult res;
 	res._inside = false;
 
 	MetaballFieldSample fieldSample = MetaballField(pos, true);
 	
-	if(fieldSample._value >= 20.2)
+	if(fieldSample._value >= 20.0)
 	{
 		vec3 normal = normalize(MetaballBaseNormal(pos, fieldSample._value));
 
@@ -343,25 +238,7 @@ SampleGlobalResult SampleMetaBallMode(vec3 pos)
 // ----------------------------------------------------------------------
 SampleGlobalResult SampleGlobalSpace(vec3 worldPos)
 {
-	if(u_objectMode == MODE_SPHERE)
-	{
-		return SampleSphereMode(worldPos);
-	}
-
-	if(u_objectMode == MODE_METABALL)
-	{
-		return SampleMetaBallMode(worldPos);
-	}
-
-	if(u_objectMode == MODE_DEFORMED_SPHERE)
-	{
-
-	}
-
-	SampleGlobalResult res;
-	res._inside = false;
-	res._error = ERROR_ILLEGALMODE;
-	return res;
+	return SanmpleMetaballMode(worldPos);
 }
 
 

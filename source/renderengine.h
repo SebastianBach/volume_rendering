@@ -56,12 +56,6 @@ enum ShaderMode
 	Experimental
 };
 
-enum ObjectMode: unsigned int
-{
-	SPHERE = 1,
-	METABALL = 2
-};
-
 enum NoiseMode : unsigned int
 {
 	NOISE = 1,
@@ -73,8 +67,6 @@ struct SceneSettings
 	bool _timeStep;
 	unsigned int _renderMode;
 	float _timeOff;
-	bool _sphereMode;
-	ObjectMode _objectMode;		// 0: sphere, 1: metaballs
 	float _dynamicObjectX;
 	float _dynamicObjectY;
 	NoiseMode _noise;
