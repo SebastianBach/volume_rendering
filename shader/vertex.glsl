@@ -2,15 +2,15 @@
 
 layout (location = 0) in vec3 VertexPosition;
 
-uniform mat4 MVP;
-uniform mat4 ModelMatrix;
+uniform mat4 u_mvp;
+uniform mat4 u_modelMatrix;
 
-smooth out vec4 WorldSpacePos;
+smooth out vec4 s_worldSpacePos;
 
 void main()
 {
-	WorldSpacePos = ModelMatrix * vec4(VertexPosition,1.0);
+	s_worldSpacePos = u_modelMatrix * vec4(VertexPosition,1.0);
 	
-    gl_Position = MVP * vec4(VertexPosition,1.0);
+    gl_Position = u_mvp * vec4(VertexPosition,1.0);
 }
 

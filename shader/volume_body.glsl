@@ -4,8 +4,8 @@ void main()
 	vec4 newResult;
 
 
-	vec3 startPos = WorldSpacePos.xyz;
-	vec3 sampleDirection = normalize(WorldSpacePos.xyz - camPos);
+	vec3 startPos = s_worldSpacePos.xyz;
+	vec3 sampleDirection = normalize(s_worldSpacePos.xyz - u_camPos);
 	vec3 sampleStep = sampleDirection * 0.01; 
 
 	SampleGlobalResult res = SampleToSurface(startPos, sampleStep, 200);

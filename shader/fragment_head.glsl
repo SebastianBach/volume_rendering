@@ -2,17 +2,25 @@
 
 layout(location = 0) out vec4 vFragColor;	//fragment shader output
 
-smooth in vec4 WorldSpacePos;
+//---------------------------------------------------------------------------
+/// Fragment position in world space.
+//---------------------------------------------------------------------------
+smooth in vec4 s_worldSpacePos;
 
-uniform vec3 camPos;
+//---------------------------------------------------------------------------
+/// Camera position in world space
+//---------------------------------------------------------------------------
+uniform vec3 u_camPos;
 
-uniform float time;
+//---------------------------------------------------------------------------
+/// noise texture
+//---------------------------------------------------------------------------
+uniform sampler2D	u_noiseTexture;
 
-uniform sampler2D	noiseTexture;
-
+//---------------------------------------------------------------------------
+/// Turn noise effect on/off.
+//---------------------------------------------------------------------------
 uniform int u_noise;
-
-uniform int renderMode;
 
 //---------------------------------------------------------------------------
 /// Animation time value.
@@ -24,9 +32,19 @@ uniform float u_animation;
 //---------------------------------------------------------------------------
 uniform int u_shadingMode;
 
-
+//---------------------------------------------------------------------------
+/// Number of metaball influencers
+//---------------------------------------------------------------------------
 uniform int u_objectCnt;
+
+//---------------------------------------------------------------------------
+/// Positions of metaball influencers
+//---------------------------------------------------------------------------
 uniform vec3 u_objectPos[8];
+
+//---------------------------------------------------------------------------
+/// Colors of metaball influencers
+//---------------------------------------------------------------------------
 uniform vec3 u_objectColor[8];
 
 //---------------------------------------------------------------------------
@@ -36,10 +54,6 @@ vec3 GetLightDir()
 {
 	return normalize(vec3(-0.2,1,1.0));
 }
-
-const int MODE_SPHERE = 1;
-const int MODE_METABALL = 2;
-const int MODE_DEFORMED_SPHERE = 3;
 
 
 // error codes for SampleResult::_error
@@ -100,7 +114,7 @@ float GetRandomFieldValue(vec3 worldPos)
 	y = y + z * GetAnimation01(3.0);
 	x = x + z* GetAnimation01(5.0);
 	
-	vec4 value = texture( noiseTexture, vec2(x,y));
+	vec4 value = texture(u_noiseTexture, vec2(x,y));
 	float res = (value.x) * 2.0;
 	
 	return res;
@@ -320,7 +334,7 @@ float BlinnSpecular(vec3 normal, vec3 lightDir, vec3 pos)
 	diffuse = max(diffuse, 0);
 	
 	vec3 R = normalize(-reflect(L,N));
-	vec3 E = normalize(camPos - pos);
+	vec3 E = normalize(u_camPos - pos);
 	float specular = pow(max(dot(R,E),0.0),45);
 	specular = max(specular, 0);
 	
@@ -330,7 +344,7 @@ float BlinnSpecular(vec3 normal, vec3 lightDir, vec3 pos)
 
 float FresnelFx(vec3 normal, vec3 pos)
 {
-	float fresnel = dot(normal, normalize(camPos - pos));
+	float fresnel = dot(normal, normalize(u_camPos - pos));
 	fresnel = 1.0 - fresnel;
 	return fresnel;
 }
@@ -357,7 +371,7 @@ vec3 VolumeLight(vec3 pos)
 {
 	// sample out
 
-	vec3 sampleDir = normalize(pos - camPos) * 0.02;
+	vec3 sampleDir = normalize(pos - u_camPos) * 0.02;
 	
 	vec3 currentPos = pos + sampleDir;
 
