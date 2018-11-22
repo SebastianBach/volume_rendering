@@ -7,8 +7,7 @@
 
 #include <vector>
 
-static const int DYN_OBJECT_INDEX = 0;
-static const int MAX_OBJECT_COUNT = 8;
+static const int MAX_OBJECT_COUNT = 12;
 
 class ObjectArray
 {
@@ -44,6 +43,7 @@ private:
 	int _count;
 	std::vector<glm::vec3> _pos;
 	std::vector<glm::vec3> _colors;
+	glm::vec3 _userObject;
 };
 
 enum ShaderMode

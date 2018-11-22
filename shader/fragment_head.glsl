@@ -40,12 +40,12 @@ uniform int u_objectCnt;
 //---------------------------------------------------------------------------
 /// Positions of metaball influencers
 //---------------------------------------------------------------------------
-uniform vec3 u_objectPos[8];
+uniform vec3 u_objectPos[12];
 
 //---------------------------------------------------------------------------
 /// Colors of metaball influencers
 //---------------------------------------------------------------------------
-uniform vec3 u_objectColor[8];
+uniform vec3 u_objectColor[12];
 
 //---------------------------------------------------------------------------
 /// Returns the vector to the light source.
@@ -180,7 +180,7 @@ MetaballFieldSample MetaballField(vec3 pos, bool color)
 	fieldSample._value = 0.0;
 	fieldSample._color = vec3(0.0);
 
-	for(int i = 0; i < u_objectCnt; ++i)
+	for(int i = 1; i < u_objectCnt; ++i)
 	{
 		MetaballSettings settings = GetMetaballSettings(i);
 		fieldSample._value += MetaballFunction(pos, settings._center);
@@ -188,7 +188,7 @@ MetaballFieldSample MetaballField(vec3 pos, bool color)
 		if(color == true)
 		{
 			float dist = length(pos - settings._center);
-			float factor = 10.0/dist;
+			float factor = 0.1/dist;
 
 			fieldSample._color += (settings._color * factor);
 		}
@@ -203,7 +203,7 @@ MetaballFieldSample MetaballField(vec3 pos, bool color)
 //---------------------------------------------------------------------------
 /// Calculates a normal vector for the given position the the metaball field.
 //---------------------------------------------------------------------------
-vec3 MetaballBaseNormal(vec3 pos, float value)
+vec3 MetaballNormal(vec3 pos, float value)
 {
 	// partial derivatives
 	// Take discrete approximation by sampling function
@@ -222,9 +222,8 @@ vec3 MetaballBaseNormal(vec3 pos, float value)
 
 //---------------------------------------------------------------------------
 /// Samples the world space for metaballs.
-// todo: fast mode to skip normal calculation
 //---------------------------------------------------------------------------
-SampleGlobalResult SanmpleMetaballMode(vec3 pos)
+SampleGlobalResult SanmpleMetaballMode(vec3 pos, bool fastMode)
 {
 	SampleGlobalResult res;
 	res._inside = false;
@@ -233,7 +232,10 @@ SampleGlobalResult SanmpleMetaballMode(vec3 pos)
 	
 	if(fieldSample._value >= 20.0)
 	{
-		vec3 normal = normalize(MetaballBaseNormal(pos, fieldSample._value));
+		vec3 normal = vec3(0);
+
+		if(fastMode == false)
+			normal = normalize(MetaballNormal(pos, fieldSample._value));
 
 		res._inside = true;
 		res._normal = normal;
@@ -250,9 +252,9 @@ SampleGlobalResult SanmpleMetaballMode(vec3 pos)
 /// @param[in]	worldpos	Sample point in world space position as vec3.
 /// @return					A SampleGlobalResult object. If the sample point is not "inside", res._inside is false and all other values may be undefined.
 // ----------------------------------------------------------------------
-SampleGlobalResult SampleGlobalSpace(vec3 worldPos)
+SampleGlobalResult SampleGlobalSpace(vec3 worldPos, bool fastMode)
 {
-	return SanmpleMetaballMode(worldPos);
+	return SanmpleMetaballMode(worldPos, fastMode);
 }
 
 
@@ -270,7 +272,7 @@ SampleGlobalResult SampleToSurface(vec3 startPos, vec3 sampleStep, int count)
 
 	for(int i = 0; i < bigCount; ++i)
 	{
-		res = SampleGlobalSpace(currentPos);
+		res = SampleGlobalSpace(currentPos, true);
 		if(res._inside)
 		{
 			break;
@@ -284,6 +286,8 @@ SampleGlobalResult SampleToSurface(vec3 startPos, vec3 sampleStep, int count)
 
 	// refine in the other direction
 
+	vec3 foundPosition = currentPos;
+
 	vec3 reverseDirection = -sampleStep;
 
 	SampleGlobalResult lastResut = res;
@@ -291,12 +295,15 @@ SampleGlobalResult SampleToSurface(vec3 startPos, vec3 sampleStep, int count)
 
 	currentPos = currentPos + reverseDirection;
 
+	bool foundNewPoint = false;
+
 	for(int i = 0; i < count; ++i)
 	{
-		res = SampleGlobalSpace(currentPos);
+		res = SampleGlobalSpace(currentPos, false);
 		if(res._inside)
 		{
 			lastResut = res;
+			foundNewPoint = true;
 		}
 		else
 		{
@@ -305,6 +312,9 @@ SampleGlobalResult SampleToSurface(vec3 startPos, vec3 sampleStep, int count)
 
 		currentPos = currentPos + reverseDirection;
 	}
+
+	if(foundNewPoint == false)
+		lastResut = SampleGlobalSpace(foundPosition, false);
 
 	return lastResut;
 }
@@ -381,7 +391,7 @@ vec3 VolumeLight(vec3 pos)
 
 	for(int i = 0; i < 50; ++i)
 	{
-		SampleGlobalResult res = SampleGlobalSpace(currentPos);
+		SampleGlobalResult res = SampleGlobalSpace(currentPos, true);
 
 		if(res._inside)
 		{
@@ -406,7 +416,7 @@ vec3 VolumeLight(vec3 pos)
 
 	for(int i = 0; i < 100; ++i)
 	{
-		SampleGlobalResult res = SampleGlobalSpace(currentPos);
+		SampleGlobalResult res = SampleGlobalSpace(currentPos, true);
 
 		if(res._inside)
 		{

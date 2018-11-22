@@ -15,8 +15,6 @@
 
 ObjectArray::ObjectArray()
 {
-	static_assert(DYN_OBJECT_INDEX < MAX_OBJECT_COUNT, "Illegal index.");
-
 	_count = 0;
 }
 
@@ -64,7 +62,9 @@ bool ObjectArray::SetDynamicObject(float x, float y)
 	pos.y = y;
 	pos.z = -1;
 
-	return SetObjectPos(DYN_OBJECT_INDEX, pos);
+	_userObject = pos;
+
+	return true;
 }
 
 bool ObjectArray::RemoveLastObject()
@@ -99,25 +99,27 @@ void ObjectArray::Animation(float step)
 	if (_count < 2)
 		return;
 
-	glm::vec3 userObjectPos = _pos[0];
+	float hue = 180.0;
+	float hueStep = 360.0 / (float(_count));
 
-	float hue = 0.0;
-	float hueStep = 1.0 / (float(_count - 1));
-
-	for (int i = 1; i < _count; ++i)
+	for (int i = 0; i < _count; ++i)
 	{
-		glm::vec3 hsv(hue, 1.0, 1.0);
+		// colors
+		float h = fmod(hue, 360.0);
+		glm::vec3 hsv(h, 1.0, 1.0);
 		glm::vec3 rgb = glm::rgbColor(hsv);
 		_colors[i] = rgb;
 
 		hue += hueStep;
 
+
+
 		glm::vec3 currentPos = _pos[i];
 
 		glm::vec3 movement(0.0);
 
-		glm::vec3 distance = userObjectPos - currentPos;
-		if (glm::length(distance) < 0.15)
+		glm::vec3 distance = _userObject - currentPos;
+		if (glm::length(distance) < 0.2)
 		{
 			movement = distance;
 			movement.x *= 0.5f;
