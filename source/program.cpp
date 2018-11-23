@@ -172,8 +172,6 @@ bool ShaderProgram::MakeShader(unsigned int type, const std::string& text, unsig
 		// get error message
 		glGetShaderInfoLog(shader, infoLogLength, NULL, infoLog);
 
-		// print shader source
-		//DataMessage(MSG_INFO(text.c_str()));
 		// print error message
 		ErrorMessage(MSG_INFO(infoLog));
 

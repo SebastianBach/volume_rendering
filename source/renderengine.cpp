@@ -37,6 +37,18 @@ bool ObjectArray::AddObject(glm::vec3& pos, glm::vec3& color, int& index)
 	return true;
 }
 
+bool ObjectArray::AddObject()
+{
+	glm::vec3 null(0.0);
+
+	_pos.push_back(null);
+	_colors.push_back(null);
+
+	_count++;
+
+	return true;
+}
+
 unsigned int  ObjectArray::GetObjectCount()
 {
 	return _count;
@@ -99,26 +111,26 @@ void ObjectArray::Animation(float step)
 	if (_count < 2)
 		return;
 
-	float hue = 180.0;
-	float hueStep = 360.0 / (float(_count));
+	float hue = 180.0f;
+	float hueStep = 360.0f / (float(_count));
 
 	for (int i = 0; i < _count; ++i)
 	{
 		// colors
-		float h = fmod(hue, 360.0);
-		glm::vec3 hsv(h, 1.0, 1.0);
-		glm::vec3 rgb = glm::rgbColor(hsv);
+		const float h = fmod(hue, 360.0f);
+		const glm::vec3 hsv(h, 1.0, 1.0);
+		const glm::vec3 rgb = glm::rgbColor(hsv);
 		_colors[i] = rgb;
 
 		hue += hueStep;
 
 
 
-		glm::vec3 currentPos = _pos[i];
+		const glm::vec3 currentPos = _pos[i];
+		const glm::vec3 distance = _userObject - currentPos;
 
 		glm::vec3 movement(0.0);
 
-		glm::vec3 distance = _userObject - currentPos;
 		if (glm::length(distance) < 0.2)
 		{
 			movement = distance;
@@ -128,7 +140,7 @@ void ObjectArray::Animation(float step)
 		}
 		else
 		{
-			float scale = (6.28f / (float(_count-1))) * float(i);
+			float scale = (6.28f / (float(_count))) * float(i);
 
 			float offset = (step*.01f) + scale;
 			float x = sin(offset) * 2.0f;
@@ -139,7 +151,6 @@ void ObjectArray::Animation(float step)
 			targetPos.y = y;
 			targetPos.z = -1.0;
 
-
 			movement = targetPos - currentPos;
 
 			movement.x *= 0.1f;
@@ -147,9 +158,9 @@ void ObjectArray::Animation(float step)
 			movement.z *= 0.1f;
 		}
 
-		currentPos = currentPos + movement;
+		const glm::vec3 newPos = currentPos + movement;
 
-		_pos[i] = currentPos;
+		_pos[i] = newPos;
 	}
 }
 
@@ -281,19 +292,13 @@ bool RenderEngine::CreateScene()
 	if (IsFalse(CreateNoiseTexture(), MSG_INFO("Could not create noise texture."))) return false;
 	if (OglError(MSG_INFO("Texture creation failed."))) return false;
 
-	// objects
-	glm::vec3 pos = glm::vec3(0, 0.5, -1.0);
-	glm::vec3 color = glm::vec3(0.0, 0.0, 1.0);
-	int objectIndex = 0;
-	_objects.AddObject(pos, color, objectIndex);
-
-	color = glm::vec3(1.0, 0.0, 0.0);
-	pos = glm::vec3(1.0, 0.5, -1.0);
-	_objects.AddObject(pos, color, objectIndex);
-	
-	color = glm::vec3(0.0, 1.0, 0.0);
-	pos = glm::vec3(-1.0, 0.5, -1.0);
-	_objects.AddObject(pos, color, objectIndex);
+	// create six objects
+	_objects.AddObject();
+	_objects.AddObject();
+	_objects.AddObject();
+	_objects.AddObject();
+	_objects.AddObject();
+	_objects.AddObject();
 
 
 	// define standard matrcies

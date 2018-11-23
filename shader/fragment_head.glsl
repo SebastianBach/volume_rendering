@@ -73,8 +73,6 @@ struct SampleGlobalResult
 	bool _inside;
 	vec3 _normal;
 	vec3 _color;
-	bool _hasUVs;
-	vec2 _uvs;
 	int _error;	// error code; 
 	vec3 _pos;
 };
@@ -90,6 +88,11 @@ struct SampleGlobalResult
 float GetAnimation01(float timeFactor)
 {
 	return (sin(u_animation * timeFactor) + 1.0) * .5;
+}
+
+float GetAnimation01Cos(float timeFactor)
+{
+	return (cos(u_animation * timeFactor) + 1.0) * .5;
 }
 
 //---------------------------------------------------------------------------
@@ -110,12 +113,12 @@ float GetRandomFieldValue(vec3 worldPos)
 	float y = (worldPos.y + 1.0) * 0.5;
 	float x = (worldPos.x + 2.0) * 0.25;
 
-	z = z * GetAnimation01(7.0);
-	y = y + z * GetAnimation01(3.0);
-	x = x + z* GetAnimation01(5.0);
+	//z = z * GetAnimation01(0.1);
+	y = (y + z) * .5 * GetAnimation01(00.02);
+	x = (x + z) * .5 * GetAnimation01Cos(0.03);
 	
 	vec4 value = texture(u_noiseTexture, vec2(x,y));
-	float res = (value.x) * 2.0;
+	float res = ((value.x) * 6.0) - 3.0;
 	
 	return res;
 }
@@ -180,7 +183,7 @@ MetaballFieldSample MetaballField(vec3 pos, bool color)
 	fieldSample._value = 0.0;
 	fieldSample._color = vec3(0.0);
 
-	for(int i = 1; i < u_objectCnt; ++i)
+	for(int i = 0; i < u_objectCnt; ++i)
 	{
 		MetaballSettings settings = GetMetaballSettings(i);
 		fieldSample._value += MetaballFunction(pos, settings._center);
@@ -188,7 +191,7 @@ MetaballFieldSample MetaballField(vec3 pos, bool color)
 		if(color == true)
 		{
 			float dist = length(pos - settings._center);
-			float factor = 0.1/dist;
+			float factor = 1.0/dist;
 
 			fieldSample._color += (settings._color * factor);
 		}
@@ -239,7 +242,6 @@ SampleGlobalResult SanmpleMetaballMode(vec3 pos, bool fastMode)
 
 		res._inside = true;
 		res._normal = normal;
-		res._hasUVs = false;
 		res._pos = pos;
 		res._color = fieldSample._color;
 	}
@@ -489,10 +491,7 @@ vec3 FinalCompositing(SampleGlobalResult res)
 
 	if(u_shadingMode == 8)
 	{
-		if(res._hasUVs == false)
-			return vec3(0.0,1.0,0.0);
-		
-		return vec3(res._uvs, 0.0);
+		return vec3(0.0,1.0,0.0);
 	}
 
 	if(u_shadingMode == 9)

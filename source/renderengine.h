@@ -16,6 +16,7 @@ public:
 	~ObjectArray();
 
 	bool AddObject(glm::vec3& pos, glm::vec3& color, int& index);
+	bool AddObject();
 
 
 	unsigned int GetObjectCount();

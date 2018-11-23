@@ -104,11 +104,6 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 // todo: make return bool
 void RunLoop(RenderEngine & engine, OSWindow & window)
 {
-	bool run = true;
-
-	MSG msg;
-
-
 	SceneSettings settings;
 	settings._renderMode = ShaderMode::Beauty;
 	settings._timeOff = 0.0;
@@ -119,8 +114,9 @@ void RunLoop(RenderEngine & engine, OSWindow & window)
 	settings._addSphere = false;
 	settings._removeObject = false;
 
-	//bool render = true;
-	
+	MSG msg;
+	bool run = true;
+
 	while (run)
 	{
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/ms644943%28v=vs.85%29.aspx
