@@ -16,6 +16,7 @@
 ObjectArray::ObjectArray()
 {
 	_count = 0;
+	_countChanged = false;
 }
 
 ObjectArray::~ObjectArray()
@@ -34,17 +35,24 @@ bool ObjectArray::AddObject(glm::vec3& pos, glm::vec3& color, int& index)
 	index = _count;
 	_count++;
 
+	_countChanged = true;
+
 	return true;
 }
 
 bool ObjectArray::AddObject()
 {
+	if (_count == MAX_OBJECT_COUNT)
+		return false;
+
 	glm::vec3 null(0.0);
 
 	_pos.push_back(null);
 	_colors.push_back(null);
 
 	_count++;
+
+	_countChanged = true;
 
 	return true;
 }
@@ -88,6 +96,8 @@ bool ObjectArray::RemoveLastObject()
 	_colors.pop_back();
 	_count--;
 
+	_countChanged = true;
+
 	return true;
 }
 
@@ -117,13 +127,15 @@ void ObjectArray::Animation(float step)
 	for (int i = 0; i < _count; ++i)
 	{
 		// colors
-		const float h = fmod(hue, 360.0f);
-		const glm::vec3 hsv(h, 1.0, 1.0);
-		const glm::vec3 rgb = glm::rgbColor(hsv);
-		_colors[i] = rgb;
+		if (_countChanged)
+		{
+			const float h = fmod(hue, 360.0f);
+			const glm::vec3 hsv(h, 1.0, 1.0);
+			const glm::vec3 rgb = glm::rgbColor(hsv);
+			_colors[i] = rgb;
 
-		hue += hueStep;
-
+			hue += hueStep;
+		}
 
 
 		const glm::vec3 currentPos = _pos[i];
@@ -162,6 +174,9 @@ void ObjectArray::Animation(float step)
 
 		_pos[i] = newPos;
 	}
+
+	if(_countChanged)
+		_countChanged = false;
 }
 
 bool ObjectArray::IsIndexOK(int index)
@@ -308,12 +323,12 @@ bool RenderEngine::CreateScene()
 	_projectionMatrix = glm::perspectiveFov(1.0f, 1280.0f, 720.0f, 0.1f, 5.0f);
 
 	_viewPlaneModelMatrix = glm::mat4(1.0f);
-	_viewPlaneModelMatrix = glm::translate(_viewPlaneModelMatrix, glm::vec3(-2, -.5, 0));
+	_viewPlaneModelMatrix = glm::translate(_viewPlaneModelMatrix, glm::vec3(-2, -0.75, 0));
 	_viewPlaneModelMatrix = glm::scale(_viewPlaneModelMatrix, glm::vec3(4, 2, 2));
 
 
 	_groundPlaneModelMatrix = glm::mat4(1.0f);
-	_groundPlaneModelMatrix = glm::translate(_groundPlaneModelMatrix, glm::vec3(-3, -1, -2));
+	_groundPlaneModelMatrix = glm::translate(_groundPlaneModelMatrix, glm::vec3(-3, -1.5, -2));
 	_groundPlaneModelMatrix = glm::scale(_groundPlaneModelMatrix, glm::vec3(10, 2, 2));
 	_groundPlaneModelMatrix = glm::rotate(_groundPlaneModelMatrix, glm::radians(90.0f), glm::vec3(1, 0, 0));
 
@@ -369,8 +384,14 @@ void RenderEngine::UpdateScene(const SceneSettings& settings)
 	if (settings._removeObject)
 		_objects.RemoveLastObject();
 
+	if (settings._addObject)
+		_objects.AddObject();
+
 	if (settings._addSphere)
 	{
+		if (_objects.GetObjectCount() >= MAX_OBJECT_COUNT)
+			return;
+
 		glm::vec3 pos;
 		pos.x = settings._dynamicObjectX;
 		pos.y = settings._dynamicObjectY;

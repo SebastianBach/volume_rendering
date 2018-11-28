@@ -15,7 +15,7 @@ uniform vec3 u_camPos;
 //---------------------------------------------------------------------------
 /// noise texture
 //---------------------------------------------------------------------------
-uniform sampler2D	u_noiseTexture;
+uniform sampler2D u_noiseTexture;
 
 //---------------------------------------------------------------------------
 /// Turn noise effect on/off.
@@ -40,12 +40,12 @@ uniform int u_objectCnt;
 //---------------------------------------------------------------------------
 /// Positions of metaball influencers
 //---------------------------------------------------------------------------
-uniform vec3 u_objectPos[12];
+uniform vec3 u_objectPos[18];
 
 //---------------------------------------------------------------------------
 /// Colors of metaball influencers
 //---------------------------------------------------------------------------
-uniform vec3 u_objectColor[12];
+uniform vec3 u_objectColor[18];
 
 //---------------------------------------------------------------------------
 /// Returns the vector to the light source.
@@ -118,34 +118,19 @@ float GetRandomFieldValue(vec3 worldPos)
 	x = (x + z) * .5 * GetAnimation01Cos(0.03);
 	
 	vec4 value = texture(u_noiseTexture, vec2(x,y));
-	float res = ((value.x) * 6.0) - 3.0;
+	float res = ((value.x) * 20.0) - 10.0;
 	
 	return res;
 }
 
-
-
-/// Returned by GetMetaballSettings()
-struct MetaballSettings
+vec3 GetMetaballPos(int i)
 {
-	vec3 _center;
-	vec3 _color;
-};
+	return u_objectPos[i];
+}
 
-//---------------------------------------------------------------------------
-/// Returns the settings of the metaball with the given index.
-//---------------------------------------------------------------------------
-MetaballSettings GetMetaballSettings(int i)
+vec3 GetMetaballColor(int i)
 {
-	MetaballSettings settings;
-
-	if(i < u_objectCnt)
-	{
-		settings._center = u_objectPos[i];
-		settings._color = u_objectColor[i];
-	}
-
-	return settings;
+	return u_objectColor[i];
 }
 
 //---------------------------------------------------------------------------
@@ -160,9 +145,6 @@ float MetaballFunction(vec3 pos, vec3 center)
 	float z = pow(pos.z - center.z, 2);
 	float sum = x + y + z;
 	float factor = 1 / sum;
-
-	if(u_noise == 1)
-		factor += GetRandomFieldValue(pos);
 	
 	return factor;
 	
@@ -185,17 +167,23 @@ MetaballFieldSample MetaballField(vec3 pos, bool color)
 
 	for(int i = 0; i < u_objectCnt; ++i)
 	{
-		MetaballSettings settings = GetMetaballSettings(i);
-		fieldSample._value += MetaballFunction(pos, settings._center);
+		vec3 metaballCenter = GetMetaballPos(i);
+		fieldSample._value += MetaballFunction(pos, metaballCenter);
 
 		if(color == true)
 		{
-			float dist = length(pos - settings._center);
+			vec3 metaballColor = GetMetaballColor(i);
+
+			float dist = length(pos - metaballCenter);
 			float factor = 1.0/dist;
 
-			fieldSample._color += (settings._color * factor);
+			fieldSample._color += (metaballColor * factor);
 		}
 	}
+
+	
+	if(u_noise == 1)
+		fieldSample._value += GetRandomFieldValue(pos);
 
 	if(color == true)
 		fieldSample._color = normalize(fieldSample._color);
@@ -231,7 +219,9 @@ SampleGlobalResult SanmpleMetaballMode(vec3 pos, bool fastMode)
 	SampleGlobalResult res;
 	res._inside = false;
 
-	MetaballFieldSample fieldSample = MetaballField(pos, true);
+	bool sampleColor = !fastMode;
+
+	MetaballFieldSample fieldSample = MetaballField(pos, sampleColor);
 	
 	if(fieldSample._value >= 20.0)
 	{
@@ -301,11 +291,11 @@ SampleGlobalResult SampleToSurface(vec3 startPos, vec3 sampleStep, int count)
 
 	for(int i = 0; i < count; ++i)
 	{
-		res = SampleGlobalSpace(currentPos, false);
+		res = SampleGlobalSpace(currentPos, true);
 		if(res._inside)
 		{
-			lastResut = res;
-			foundNewPoint = true;
+			//lastResut = res;
+			foundPosition = currentPos;
 		}
 		else
 		{
@@ -315,8 +305,8 @@ SampleGlobalResult SampleToSurface(vec3 startPos, vec3 sampleStep, int count)
 		currentPos = currentPos + reverseDirection;
 	}
 
-	if(foundNewPoint == false)
-		lastResut = SampleGlobalSpace(foundPosition, false);
+	
+	lastResut = SampleGlobalSpace(foundPosition, false);
 
 	return lastResut;
 }
@@ -363,6 +353,9 @@ float FresnelFx(vec3 normal, vec3 pos)
 
 bool HardShadow(vec3 pos)
 {
+	if(pos.y > 2.0)
+		return false;
+
 	vec3 sampleDirection = GetLightDir();
 	float scale = 0.05;
 	vec3 sampleStep = sampleDirection * scale; 

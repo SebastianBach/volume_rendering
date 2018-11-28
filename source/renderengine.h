@@ -7,7 +7,7 @@
 
 #include <vector>
 
-static const int MAX_OBJECT_COUNT = 12;
+static const int MAX_OBJECT_COUNT = 18;
 
 class ObjectArray
 {
@@ -45,6 +45,7 @@ private:
 	std::vector<glm::vec3> _pos;
 	std::vector<glm::vec3> _colors;
 	glm::vec3 _userObject;
+	bool _countChanged;
 };
 
 enum ShaderMode
@@ -73,6 +74,7 @@ struct SceneSettings
 	NoiseMode _noise;
 	bool _addSphere;
 	bool _removeObject;
+	bool _addObject;
 };
 
 class RenderEngine

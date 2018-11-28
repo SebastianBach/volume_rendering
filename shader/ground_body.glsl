@@ -2,7 +2,7 @@ void main()
 {
 	vec3 startPos = s_worldSpacePos.xyz;
 	vec3 sampleDirection = vec3(0.0,1.0,0.0);
-	vec3 sampleStep = sampleDirection * 0.005;
+	vec3 sampleStep = sampleDirection * 0.01;
 
 	startPos = startPos +  sampleStep;
 

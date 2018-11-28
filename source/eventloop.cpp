@@ -77,6 +77,12 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 				settings._timeOff = -1.0f;
 				return;
 			}
+			if (key == VK_BACK)
+			{
+				settings._removeObject = true;
+				return;
+			}
+
 			const TCHAR ch = (TCHAR)key;
 
 			if (ch == 'N')
@@ -91,6 +97,11 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 			if (ch == 'D')
 			{
 				settings._removeObject = true;
+				return;
+			}
+			if (ch == 'A')
+			{
+				settings._addObject = true;
 				return;
 			}
 
@@ -113,6 +124,7 @@ void RunLoop(RenderEngine & engine, OSWindow & window)
 	settings._noise = NoiseMode::NO_NOISE;
 	settings._addSphere = false;
 	settings._removeObject = false;
+	settings._addObject = false;
 
 	MSG msg;
 	bool run = true;
@@ -137,6 +149,7 @@ void RunLoop(RenderEngine & engine, OSWindow & window)
 		settings._timeOff = 0.0;
 		settings._addSphere = false;
 		settings._removeObject = false;
+		settings._addObject = false;
 
 		const bool renderResult = engine.Render();
 		if (renderResult == false)
