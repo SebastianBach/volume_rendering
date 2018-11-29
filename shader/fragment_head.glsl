@@ -214,7 +214,7 @@ vec3 MetaballNormal(vec3 pos, float value)
 //---------------------------------------------------------------------------
 /// Samples the world space for metaballs.
 //---------------------------------------------------------------------------
-SampleGlobalResult SanmpleMetaballMode(vec3 pos, bool fastMode)
+SampleGlobalResult SampleMetaballMode(vec3 pos, bool fastMode)
 {
 	SampleGlobalResult res;
 	res._inside = false;
@@ -246,7 +246,7 @@ SampleGlobalResult SanmpleMetaballMode(vec3 pos, bool fastMode)
 // ----------------------------------------------------------------------
 SampleGlobalResult SampleGlobalSpace(vec3 worldPos, bool fastMode)
 {
-	return SanmpleMetaballMode(worldPos, fastMode);
+	return SampleMetaballMode(worldPos, fastMode);
 }
 
 
@@ -361,7 +361,6 @@ bool HardShadow(vec3 pos)
 	vec3 sampleStep = sampleDirection * scale; 
 	pos = pos + sampleStep;
 
-	// TODO: use "steps"
 	int steps = int((2.5 - pos.y)  / scale);
 
 	SampleGlobalResult res = SampleToSurface(pos, sampleStep, steps);
@@ -417,6 +416,9 @@ vec3 VolumeLight(vec3 pos)
 		{
 			count++;
 		}
+
+		if(res._pos.y > 2.0)
+			break;
 
 		currentPos = currentPos + sampleDirLight;
 	}
