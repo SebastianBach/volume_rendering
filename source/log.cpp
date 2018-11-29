@@ -72,11 +72,20 @@ bool UnitTestLogSystem()
 	return true;
 }
 
-static bool IsError(MsgType type)
+//---------------------------------------------------------------------------
+/// Returns true if the given message type is an error.
+/// @param[in]	type		The message tpe to check
+/// @return					True if the message type is Msg::TypeError.
+//---------------------------------------------------------------------------
+static bool IsError(error_sys_intern::MsgType type)
 {
-	return type == MsgType::Error;
+	return type == error_sys_intern::MsgType::Error;
 }
 
+//---------------------------------------------------------------------------
+/// Prints the current time.
+/// @param[in]	stream		The file stream to write into.
+//---------------------------------------------------------------------------
 static void PrintTime(std::ofstream& stream)
 {
 	SYSTEMTIME systemTime;
@@ -97,7 +106,15 @@ static void PrintTime(std::ofstream& stream)
 	stream << "\n";
 }
 
-static void PrintError(std::ofstream& stream, MsgType type, const char* file, int line, const char* function)
+//---------------------------------------------------------------------------
+/// Prints error information to the given stream and the console.
+/// @param[in]  stream		The stream to write into.
+/// @param[in]	type		The message type. Must be MsgType::Error.
+/// @param[in]	file		The file name.
+/// @param[in]	line		The line number.
+/// @param[in]	function	The function name.
+//---------------------------------------------------------------------------
+static void PrintError(std::ofstream& stream, error_sys_intern::MsgType type, const char* file, int line, const char* function)
 {
 	if (IsError(type))
 	{
@@ -126,6 +143,11 @@ static void PrintError(std::ofstream& stream, MsgType type, const char* file, in
 	}
 }
 
+//---------------------------------------------------------------------------
+/// Prints a message to the stream an the console.
+/// @param[in]	stream		Stream to write to.
+/// @param[in]	message		The message to print.
+//---------------------------------------------------------------------------
 static void PrintMessage(std::ofstream& stream, const char* message)
 {
 	stream << ">>> ";
@@ -138,13 +160,6 @@ static void PrintMessage(std::ofstream& stream, const char* message)
 	// print to console window
 	OutputDebugStringA(message);
 	OutputDebugStringA("\n");
-}
-
-void PrintInfo()
-{
-	// prints application name
-	// OS
-	// Memory etc.
 }
 
 void error_sys_intern::WriteToLog(const char* message, MsgType type, const char* file, int line, const char* function)

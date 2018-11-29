@@ -1,25 +1,28 @@
 #ifndef VOLUME_DEMO_LOG_H__
 #define VOLUME_DEMO_LOG_H__
 
-enum class MsgType 
-{ 
-	Data,
-	Info, 
-	Error 
-};
+#include <functional>
 
 //---------------------------------------------------------------------------
 /// Tests the error handling system.
 //---------------------------------------------------------------------------
 bool UnitTestLogSystem();
 
-void PrintInfo();
-
-
-#include <functional>
-
 namespace error_sys_intern
 {
+//---------------------------------------------------------------------------
+/// Message types.
+//---------------------------------------------------------------------------
+enum class MsgType
+{
+	Data,
+	Info,
+	Error
+};
+
+//---------------------------------------------------------------------------
+/// Error information.
+//---------------------------------------------------------------------------
 struct ErrorInfo
 {
 	const char* _file;
@@ -30,9 +33,17 @@ struct ErrorInfo
 //---------------------------------------------------------------------------
 /// Writes the message to the log file.
 /// Use InfoMessage(), DataMessage() or ErrorMessage() instead.
+/// @param[in]	message		The message text.
+/// @param[in]	type		The message type (MsgType).
+/// @param[in]	file		The file path.
+/// @param[in]	line		The line number.
+/// @param[ni]	function	The function name
 //---------------------------------------------------------------------------
 void WriteToLog(const char* message, MsgType type, const char* file, int line, const char* function);
 
+//---------------------------------------------------------------------------
+/// Tests the error handling system.
+//---------------------------------------------------------------------------
 template<typename F> static void WriteMessage(const char* functionName, F && f, MsgType type)
 {
 	error_sys_intern::ErrorInfo info;
@@ -45,6 +56,10 @@ template<typename F> static void WriteMessage(const char* functionName, F && f, 
 #error "MSG_INFO" already defined.
 #endif
 
+//---------------------------------------------------------------------------
+/// Macro to define the error message and context.
+/// Used with IsNullptr() etc.
+//---------------------------------------------------------------------------
 #define MSG_INFO(msg) __func__, \
 					[&](error_sys_intern::ErrorInfo& info) -> void \
 					{\
@@ -53,19 +68,34 @@ template<typename F> static void WriteMessage(const char* functionName, F && f, 
 						info._line = __LINE__; \
 					}
 
+//---------------------------------------------------------------------------
+/// Writes an info-message. Can be used with MSG_INFO().
+/// @param[in]	functionName	The name of the function.
+/// @param[in]	f				Function called to obtain the message information.
+//---------------------------------------------------------------------------
 template<typename F> static void InfoMessage(const char* functionName, F && f)
 {
-	error_sys_intern::WriteMessage(functionName, f, MsgType::Info);
+	error_sys_intern::WriteMessage(functionName, f, error_sys_intern::MsgType::Info);
 }
 
+//---------------------------------------------------------------------------
+/// Writes an data-message. Can be used with MSG_INFO().
+/// @param[in]	functionName	The name of the function.
+/// @param[in]	f				Function called to obtain the message information.
+//---------------------------------------------------------------------------
 template<typename F> static void DataMessage(const char* functionName, F && f)
 {
-	error_sys_intern::WriteMessage(functionName, f, MsgType::Data);
+	error_sys_intern::WriteMessage(functionName, f, error_sys_intern::MsgType::Data);
 }
 
+//---------------------------------------------------------------------------
+/// Writes an error-message. Can be used with MSG_INFO().
+/// @param[in]	functionName	The name of the function.
+/// @param[in]	f				Function called to obtain the message information.
+//---------------------------------------------------------------------------
 template<typename F> static void ErrorMessage(const char* functionName, F && f)
 {
-	error_sys_intern::WriteMessage(functionName, f, MsgType::Error);
+	error_sys_intern::WriteMessage(functionName, f, error_sys_intern::MsgType::Error);
 }
 
 //---------------------------------------------------------------------------

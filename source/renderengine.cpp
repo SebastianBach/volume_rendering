@@ -1,4 +1,5 @@
 #include "renderengine.h"
+#include "modeling.h"
 
 // see https://github.com/Dav1dde/glad
 #include <glad/glad.h>
@@ -6,10 +7,8 @@
 #include "log.h"
 #include <string>
 #include <cstdlib>
+
 #include <gl/GLU.h>
-
-#include "modeling.h"
-
 #include "glm/gtc/matrix_transform.hpp"
 #include <glm/gtx/color_space.hpp>
 
@@ -26,6 +25,7 @@ ObjectArray::~ObjectArray()
 
 bool ObjectArray::AddObject(glm::vec3& pos, glm::vec3& color, int& index)
 {
+	// check
 	if (_count == MAX_OBJECT_COUNT)
 		return false;
 
@@ -42,6 +42,7 @@ bool ObjectArray::AddObject(glm::vec3& pos, glm::vec3& color, int& index)
 
 bool ObjectArray::AddObject()
 {
+	// check
 	if (_count == MAX_OBJECT_COUNT)
 		return false;
 
@@ -51,38 +52,21 @@ bool ObjectArray::AddObject()
 	_colors.push_back(null);
 
 	_count++;
-
 	_countChanged = true;
 
 	return true;
 }
 
-unsigned int  ObjectArray::GetObjectCount()
+unsigned int ObjectArray::GetObjectCount()
 {
 	return _count;
 }
 
-bool ObjectArray::SetObjectPos(int index, glm::vec3& pos)
-{
-	if (IsFalse(IsIndexOK(index), MSG_INFO("Index out of range")))
-		return false;
-
-	_pos[index] = pos;
-
-	return true;
-}
-
 bool ObjectArray::SetDynamicObject(float x, float y)
 {
-	if (_count == 0)
-		return false;
-
-	glm::vec3 pos;
-	pos.x = x;
-	pos.y = y;
-	pos.z = -1;
-
-	_userObject = pos;
+	_userObject.x = x;
+	_userObject.y = y;
+	_userObject.z = -1;
 
 	return true;
 }
@@ -122,13 +106,14 @@ void ObjectArray::Animation(float step)
 		return;
 
 	float hue = 180.0f;
-	float hueStep = 360.0f / (float(_count));
-
+	const float hueStep = 360.0f / (float(_count));
+	
 	for (int i = 0; i < _count; ++i)
 	{
 		// colors
 		if (_countChanged)
 		{
+			// calculate color wheel
 			const float h = fmod(hue, 360.0f);
 			const glm::vec3 hsv(h, 1.0, 1.0);
 			const glm::vec3 rgb = glm::rgbColor(hsv);
@@ -179,29 +164,18 @@ void ObjectArray::Animation(float step)
 		_countChanged = false;
 }
 
-bool ObjectArray::IsIndexOK(int index)
-{
-	if (index >= _count)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-
 template<class ...Args> static bool SetUniform(ShaderProgram& prog, const char* name, Args... args)
 {
 	 const bool uniformResult = prog.SetUniform(name, (args)...);
 
-	 auto composeErrorMessage = [name]()->std::string
+	 auto ComposeErrorMessage = [name]()->std::string
 	 {
 		 std::string message("Failed to set uniform variable: ");
 		 message.append(name);
 		 return message;
 	 };
 
-	if (IsFalse(uniformResult, MSG_INFO(composeErrorMessage())))
+	if (IsFalse(uniformResult, MSG_INFO(ComposeErrorMessage())))
 		return false;
 
 	return true;
@@ -267,11 +241,6 @@ bool RenderEngine::Init()
 	return true;
 }
 
-bool UnitTest()
-{
-	return true;
-}
-
 #include <iostream>
 #include <cmath>
 
@@ -308,13 +277,10 @@ bool RenderEngine::CreateScene()
 	if (OglError(MSG_INFO("Texture creation failed."))) return false;
 
 	// create six objects
-	_objects.AddObject();
-	_objects.AddObject();
-	_objects.AddObject();
-	_objects.AddObject();
-	_objects.AddObject();
-	_objects.AddObject();
-
+	for (int i = 0; i < 6; ++i)
+	{
+		if (IsFalse(_objects.AddObject(), MSG_INFO("Could not add object."))) return false;
+	}
 
 	// define standard matrcies
 	_camPos = glm::vec3(0, 0, 2);
@@ -427,7 +393,6 @@ bool RenderEngine::Render()
 	const int posDataSize = _objects.GetDataSize();
 	const unsigned int objectCnt = _objects.GetObjectCount();
 
-	// todo: make sub-function
 	{
 		if (IsFalse(_shader.Use(), MSG_INFO("Could not use shader."))) return false;
 
@@ -443,9 +408,9 @@ bool RenderEngine::Render()
 		_shader.End();
 	}
 	
-	// todo: make sub-function
 	{
 		if (IsFalse(_groundShader.Use(), MSG_INFO("Could not enable ground shader"))) return false;
+
 		if (!SetUniform(_groundShader, "u_animation", _step)) return false;
 		if (!SetUniform(_groundShader, "u_shadingMode", _settings._renderMode)) return false;	
 		if (!SetUniform(_groundShader, "u_objectPos", posData, posDataSize)) return false;

@@ -6,6 +6,8 @@
 
 //---------------------------------------------------------------------------
 /// Application event loop.
+/// @paran[in] engine		The render engine.
+/// @param[in] window		The window to show the rendering result.
 //---------------------------------------------------------------------------
 void RunLoop(RenderEngine & engine, OSWindow & window);
 

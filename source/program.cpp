@@ -15,7 +15,12 @@
 // see https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml
 static const GLint LOCATION_FAIL = -1;
 
-
+//---------------------------------------------------------------------------
+/// Utlity function to load a file.
+/// @param[in]	filename		The file location.
+/// @param[out]	text			The string to contain the file content.
+/// @return						False if an error occured.
+//---------------------------------------------------------------------------
 static bool LoadFile(const char* filename, std::string& text)
 {
 	if (IsNullptr(filename, MSG_INFO("Invalid filename argument"))) return false;
@@ -43,6 +48,11 @@ static bool LoadFile(const char* filename, std::string& text)
 	return true;
 }
 
+//---------------------------------------------------------------------------
+/// Utility function that returns an error message.
+/// @param[in]	name	The name of an uiform variable.
+/// @return				The formatted error string.
+//---------------------------------------------------------------------------
 static std::string GetUniformErrorString(const char* name)
 {
 	std::string str;
@@ -57,6 +67,8 @@ ShaderProgram::ShaderProgram()
 {
 	_program = 0;
 	_isLinked = false;
+	_vertexShader = 0;
+	_fragmentShader = 0;
 }
 
 ShaderProgram::~ShaderProgram()

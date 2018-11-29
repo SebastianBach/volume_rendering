@@ -364,7 +364,7 @@ bool HardShadow(vec3 pos)
 	// TODO: use "steps"
 	int steps = int((2.5 - pos.y)  / scale);
 
-	SampleGlobalResult res = SampleToSurface(pos, sampleStep, 500);
+	SampleGlobalResult res = SampleToSurface(pos, sampleStep, steps);
 
 	if(res._inside)
 		return true;

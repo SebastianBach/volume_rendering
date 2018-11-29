@@ -6,11 +6,12 @@
 
 PolygonObject::PolygonObject()
 {
-	_vao = 0;
-	_vertexBuffer = 0;
-	_uvBuffer = 0;
-	_normalBuffer = 0;
-	_indexBuffer = 0;
+	_vao			= 0;
+	_vertexBuffer	= 0;
+	_uvBuffer		= 0;
+	_normalBuffer	= 0;
+	_indexBuffer	= 0;
+	_indexBuffer	= 0;
 }
 
 PolygonObject::~PolygonObject()
@@ -143,9 +144,4 @@ bool PolygonObject::Draw() const
 	glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, ((GLubyte *)NULL + (0)));
 
 	return true;
-}
-
-void PolygonObject::Clear()
-{
-
 }

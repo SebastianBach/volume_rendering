@@ -7,6 +7,11 @@
 
 #include <iostream>
 
+//---------------------------------------------------------------------------
+/// Conerts the key ID to a render mode ID.
+/// @param[in]	key			Character ID.
+/// @param[out]	renderMode	Render mode ID (0 - 9).
+//---------------------------------------------------------------------------
 static void KeyToRenderMode(const TCHAR & key, unsigned int& renderMode)
 {
 	if (key < 48)
@@ -19,6 +24,12 @@ static void KeyToRenderMode(const TCHAR & key, unsigned int& renderMode)
 	renderMode = key - 48;
 }
 
+//---------------------------------------------------------------------------
+/// Handles key and mouse events.
+/// @param[out]	run			Set to false if the application should end (ESC pressed).
+/// @param[out] settings	The settings object that will be edited.
+/// @param[in]	msg			The current event message.
+//---------------------------------------------------------------------------
 static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 {
 	switch (msg.message)
@@ -54,39 +65,47 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 
 		case WM_KEYDOWN:
 		{
-			WPARAM key = msg.wParam;
+			const WPARAM key = msg.wParam;
 
 			if (key == VK_ESCAPE)
 			{
+				// ESC pressed, stop application
 				run = false;
 				return;
 			}
 			if (key == VK_SPACE)
 			{
+				// SPACE pressed, stop animation
 				settings._timeStep = !settings._timeStep;
 				return;
 			}
 			if (key == VK_RIGHT)
 			{
+				// RIGHT ARROW pressed, move animation forward
 				settings._timeOff = 1.0f;
 				return;
 			}
 
 			if (key == VK_LEFT)
 			{
+				// LEFT ARROW pressed, move animation backward
 				settings._timeOff = -1.0f;
 				return;
 			}
 			if (key == VK_BACK)
 			{
+				// BACKSPACE pressed, remove the last object
 				settings._removeObject = true;
 				return;
 			}
 
+			// character keys pressed
 			const TCHAR ch = (TCHAR)key;
 
 			if (ch == 'N')
 			{
+				// turn noise on/off
+
 				if (settings._noise == NoiseMode::NOISE)
 					settings._noise = NoiseMode::NO_NOISE;
 				else
@@ -96,23 +115,23 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 			}
 			if (ch == 'D')
 			{
+				// remove last object
 				settings._removeObject = true;
 				return;
 			}
 			if (ch == 'A')
 			{
+				// add new abject
 				settings._addObject = true;
 				return;
 			}
 
+			// handle render modes
 			KeyToRenderMode(ch, settings._renderMode);
-
 		}
-	
 	}
 }
 
-// todo: make return bool
 void RunLoop(RenderEngine & engine, OSWindow & window)
 {
 	SceneSettings settings;
@@ -142,7 +161,9 @@ void RunLoop(RenderEngine & engine, OSWindow & window)
 			TranslateMessage(&msg);
 		}
 
-	
+		// update scene
+		// add/remove objects
+		// play animation
 		engine.UpdateScene(settings);
 
 		// reset
@@ -151,19 +172,19 @@ void RunLoop(RenderEngine & engine, OSWindow & window)
 		settings._removeObject = false;
 		settings._addObject = false;
 
+		// render scene
 		const bool renderResult = engine.Render();
+
 		if (renderResult == false)
 		{
 			ErrorMessage(MSG_INFO("Error on rendering."));
 			run = false;
 		}	
 
+		// swap buffers
 		const bool swapResult = window.Swap();
 		if (swapResult == false)
 			run = false;
-	
-
-		// DWORD now = GetTickCount();
 	}
 }
 

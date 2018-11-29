@@ -5,12 +5,14 @@
 
 //---------------------------------------------------------------------------
 /// Creates a triangle.
+/// @param[in]	poly	PolygonObject to fill.
 /// @return				False if an error occurred.
 //---------------------------------------------------------------------------
 bool CreateTriangle(PolygonObject& poly);
 
 //---------------------------------------------------------------------------
 /// Creates a plane (two triangles).
+/// @param[in]	poly	PolygonObject to fill.
 /// @return				False if an error occurred.
 //---------------------------------------------------------------------------
 bool CreatePlane(PolygonObject& poly);
