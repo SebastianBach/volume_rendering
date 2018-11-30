@@ -146,14 +146,19 @@ float MetaballFunction(vec3 pos, vec3 center)
 {
 	// https://en.wikipedia.org/wiki/Metaballs
 	
-	float x = pow(pos.x - center.x, 2);
-	float y = pow(pos.y - center.y, 2);
-	float z = pow(pos.z - center.z, 2);
+	float x = pos.x - center.x;
+	x = x*x;
+
+	float y = pos.y - center.y;
+	y = y*y;
+
+	float z = pos.z - center.z;
+	z = z*z;
+
 	float sum = x + y + z;
-	float factor = 1 / sum;
+	float value = 1 / sum;
 	
-	return factor;
-	
+	return value;
 }
 
 struct MetaballFieldSample
