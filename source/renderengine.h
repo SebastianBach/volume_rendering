@@ -33,13 +33,13 @@ public:
 	/// @param[in]	pos		The object position.
 	/// @param[in]	color	The object color.
 	/// @param[out]	index	The new object index.
-	/// @return				False if an error occured.
+	/// @return				False if an error occurred.
 	//---------------------------------------------------------------------------
 	bool AddObject(glm::vec3& pos, glm::vec3& color, int& index);
 
 	//---------------------------------------------------------------------------
 	/// Adds an object to the scene.
-	/// @return				False if an error occured.
+	/// @return				False if an error occurred.
 	//---------------------------------------------------------------------------
 	bool AddObject();
 
@@ -53,13 +53,13 @@ public:
 	/// Sets the position of the dynamic, user controlled object.
 	/// @param[in]	x		The x-coordinate.
 	/// @param[int]	y		The y-coordinate.
-	/// @return				False if an error occured.
+	/// @return				False if an error occurred.
 	//---------------------------------------------------------------------------
 	bool SetDynamicObject(float x, float y);
 
 	//---------------------------------------------------------------------------
 	/// Removes the last object from the scene.
-	/// @return				False if an error occured.
+	/// @return				False if an error occurred.
 	//---------------------------------------------------------------------------
 	bool RemoveLastObject();
 
@@ -97,16 +97,6 @@ private:
 	bool _countChanged;				///> True if the number of elements has changed. Reset Animation().
 };
 
-enum ShaderMode
-{
-	Beauty = 0,
-	LambertLighting,
-	PhongLighting,
-	Fresnel,
-	Normals,
-	Experimental
-};
-
 enum NoiseMode : unsigned int
 {
 	NOISE = 1,
@@ -124,7 +114,7 @@ struct SceneSettings
 	float _dynamicObjectX;
 	float _dynamicObjectY;
 	NoiseMode _noise;
-	bool _addSphere;
+	bool _addObjectClick;
 	bool _removeObject;
 	bool _addObject;
 };
@@ -159,38 +149,34 @@ public:
 	//---------------------------------------------------------------------------
 	bool Render();
 
+	//---------------------------------------------------------------------------
+	/// Closes the render engine; frees resources.
+	/// @return				False if an error occurred.
+	//---------------------------------------------------------------------------
 	bool Close();
 
 private:
 
+	//---------------------------------------------------------------------------
+	/// Creates the noise texture.
+	/// @return				False if an error occurred.
+	//---------------------------------------------------------------------------
 	bool CreateNoiseTexture();
 
-	PolygonObject _viewPlane;
-	PolygonObject _ground;
+	PolygonObject _viewPlane;		///< view plane object.
+	PolygonObject _ground;			///< ground plane object
 
-	ShaderProgram _shader;
-	ShaderProgram _groundShader;
+	ShaderProgram _shader;			///< main view shader.
+	ShaderProgram _groundShader;	///< ground shader
 
-	unsigned int _noiseTexture;
+	unsigned int _noiseTexture;		///< ID of the noise texture.
 
+	float _step;					///< current animation time
 
-	// scene
-	glm::vec3 _camPos;
-	glm::mat4 _projectionMatrix;
-	glm::mat4 _viewMatrix;
+	SceneSettings _settings;		///< scene settings.
 
-	glm::mat4 _viewPlaneModelMatrix;
-	glm::mat4 _groundPlaneModelMatrix;
-
-
-	float _step; // current animation time
-
-	SceneSettings _settings;
-
-	ObjectArray _objects;
-
-	
+	ObjectArray _objects;			///< scene objects.
 };
 
-#endif
+#endif	// VOLUME_DEMO_RENDERENGINE_H__
 

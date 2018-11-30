@@ -33,17 +33,17 @@ uniform float u_animation;
 uniform int u_shadingMode;
 
 //---------------------------------------------------------------------------
-/// Number of metaball influencers
+/// Number of metaball influencer
 //---------------------------------------------------------------------------
 uniform int u_objectCnt;
 
 //---------------------------------------------------------------------------
-/// Positions of metaball influencers
+/// Positions of metaball influencer
 //---------------------------------------------------------------------------
 uniform vec3 u_objectPos[18];
 
 //---------------------------------------------------------------------------
-/// Colors of metaball influencers
+/// Colors of metaball influencer
 //---------------------------------------------------------------------------
 uniform vec3 u_objectColor[18];
 
@@ -65,21 +65,24 @@ const int ERROR_ILLEGALMODE = 2;
 const float CONST_PI = 3.1415;
 const float CONST_TAU = 6.2831;
 
+// threshold value separating "inside" and "outside"
+const float METABALL_THRESHOLD = 20.0;
+
 //---------------------------------------------------------------------------
 /// Structure storing data from sampling space with SampleSpace().
 //---------------------------------------------------------------------------
 struct SampleGlobalResult
 {
-	bool _inside;
-	vec3 _normal;
-	vec3 _color;
-	int _error;	// error code; 
-	vec3 _pos;
+	bool _inside;	// true if sample point is "inside" the metaballs.
+	vec3 _normal;	// normal vector
+	vec3 _color;	// color
+	int _error;		// error code; 
+	vec3 _pos;		// world space position
 };
 
 
 //---------------------------------------------------------------------------
-/// Animation Utlity
+/// Animation Utility
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -135,6 +138,9 @@ vec3 GetMetaballColor(int i)
 
 //---------------------------------------------------------------------------
 /// Metaball function.
+/// @param[in]	pos		World space position.
+/// @param[in]	center	Metaball position.
+/// @return				Metaball value.
 //---------------------------------------------------------------------------
 float MetaballFunction(vec3 pos, vec3 center)
 {
@@ -158,6 +164,9 @@ struct MetaballFieldSample
 
 //---------------------------------------------------------------------------
 /// Samples the world metaball field.
+/// @param[in]	pos		World space position.
+/// @param[in]	color	Set to true to calculate the interpolate color.
+/// @return				MetaballFieldSample object with the result value and optional color.
 //---------------------------------------------------------------------------
 MetaballFieldSample MetaballField(vec3 pos, bool color)
 {
@@ -193,14 +202,13 @@ MetaballFieldSample MetaballField(vec3 pos, bool color)
 
 //---------------------------------------------------------------------------
 /// Calculates a normal vector for the given position the the metaball field.
+/// @param[in]	pos		World space position.
+/// @param[in]	value	The value at the world space position.
+/// @return				The normal vector.
 //---------------------------------------------------------------------------
 vec3 MetaballNormal(vec3 pos, float value)
 {
-	// partial derivatives
-	// Take discrete approximation by sampling function
-	// Compute gradient
-
-	float d = -0.1;
+	float d = -0.01;
 	float ff = value;
 	float fx = MetaballField(vec3(pos.x + d, pos.y, pos.z), false)._value;
 	float fy = MetaballField(vec3(pos.x, pos.y + d, pos.z), false)._value;
@@ -213,22 +221,23 @@ vec3 MetaballNormal(vec3 pos, float value)
 
 //---------------------------------------------------------------------------
 /// Samples the world space for metaballs.
+/// @param[in]	pos			World space position.
+/// @param[in]	fastMode	Set to true for fast calculation (without colors and normals).
+/// @return					SampleGlobalResult result object.
 //---------------------------------------------------------------------------
 SampleGlobalResult SampleMetaballMode(vec3 pos, bool fastMode)
 {
 	SampleGlobalResult res;
 	res._inside = false;
 
-	bool sampleColor = !fastMode;
-
-	MetaballFieldSample fieldSample = MetaballField(pos, sampleColor);
+	MetaballFieldSample fieldSample = MetaballField(pos, !fastMode);
 	
-	if(fieldSample._value >= 20.0)
+	if(fieldSample._value >= METABALL_THRESHOLD)
 	{
 		vec3 normal = vec3(0);
 
 		if(fastMode == false)
-			normal = normalize(MetaballNormal(pos, fieldSample._value));
+			normal = MetaballNormal(pos, fieldSample._value);
 
 		res._inside = true;
 		res._normal = normal;
@@ -240,8 +249,9 @@ SampleGlobalResult SampleMetaballMode(vec3 pos, bool fastMode)
 }
 
 // ----------------------------------------------------------------------
-/// Samples the space and returns the result.
-/// @param[in]	worldpos	Sample point in world space position as vec3.
+/// Samples space and returns the result.
+/// @param[in]	worldPos	Sample point in world space position as vec3.
+/// @param[in]	fastMode	Set to true for fast calculation (without colors and normals).
 /// @return					A SampleGlobalResult object. If the sample point is not "inside", res._inside is false and all other values may be undefined.
 // ----------------------------------------------------------------------
 SampleGlobalResult SampleGlobalSpace(vec3 worldPos, bool fastMode)
@@ -251,14 +261,17 @@ SampleGlobalResult SampleGlobalSpace(vec3 worldPos, bool fastMode)
 
 
 // ----------------------------------------------------------------------
-/// Samples the space until a surface was found.
+/// Samples space until a surface was found.
+/// @param[in]	startPos	Sampling start position.
+/// @param[in]	sampleStep	A sampling step.
+/// @return					A SampleGlobalResult object. res._inside is false if no surface was found.
 // ----------------------------------------------------------------------
 SampleGlobalResult SampleToSurface(vec3 startPos, vec3 sampleStep, int count)
 {
 	vec3 bigStep = sampleStep * 10.0;
 	int bigCount = int(float(count) * .1);
 
-	vec3 currentPos = startPos;
+	vec3 currentPos = startPos + bigStep;
 
 	SampleGlobalResult res;
 
@@ -311,23 +324,18 @@ SampleGlobalResult SampleToSurface(vec3 startPos, vec3 sampleStep, int count)
 	return lastResut;
 }
 
-
-
-
 // ----------------------------------------------------------------------
 /// Shading utility
 // ----------------------------------------------------------------------
 
-
-
-float LambertLighting(vec3 normal, vec3 lightDir)
+float LambertianLighting(vec3 normal, vec3 lightDir)
 {
 	float diffuse = dot(lightDir, normal);
 	diffuse = max(diffuse, 0);
 	return diffuse;
 }
 
-float BlinnSpecular(vec3 normal, vec3 lightDir, vec3 pos)
+float PhongSpecular(vec3 normal, vec3 lightDir, vec3 pos)
 {
 	vec3 N = normal;
 	vec3 L = lightDir;
@@ -337,7 +345,7 @@ float BlinnSpecular(vec3 normal, vec3 lightDir, vec3 pos)
 	
 	vec3 R = normalize(-reflect(L,N));
 	vec3 E = normalize(u_camPos - pos);
-	float specular = pow(max(dot(R,E),0.0),45);
+	float specular = pow(max(dot(R,E),0.0),40);
 	specular = max(specular, 0);
 	
 	float result = specular;
@@ -452,12 +460,12 @@ vec3 FinalCompositing(SampleGlobalResult res)
 
 	if(u_shadingMode == 2)
 	{
-		return vec3(LambertLighting(normal, lightDir));
+		return vec3(LambertianLighting(normal, lightDir));
 	}
 
 	if(u_shadingMode == 3)
 	{
-		return vec3(BlinnSpecular(normal, lightDir,pos));
+		return vec3(PhongSpecular(normal, lightDir,pos));
 	}
 
 	if(u_shadingMode == 4)
@@ -493,8 +501,8 @@ vec3 FinalCompositing(SampleGlobalResult res)
 	{
 		vec3 baseColor = vec3(0.5,0.0,0.0);
 		vec3 color = baseColor;
-		float light = LambertLighting(normal, lightDir);
-		float specular = BlinnSpecular(normal, lightDir,pos);
+		float light = LambertianLighting(normal, lightDir);
+		float specular = PhongSpecular(normal, lightDir,pos);
 		float fresnel = FresnelFx(normal,pos);
 		vec3 volumeLight = VolumeLight(pos);
 
@@ -512,8 +520,8 @@ vec3 FinalCompositing(SampleGlobalResult res)
 	if(u_shadingMode == 0)
 	{
 		vec3 color = res._color;
-		float light = LambertLighting(normal, lightDir);
-		float specular = BlinnSpecular(normal, lightDir,pos);
+		float light = LambertianLighting(normal, lightDir);
+		float specular = PhongSpecular(normal, lightDir,pos);
 		float fresnel = FresnelFx(normal,pos);
 
 		float shadow = 1.0;

@@ -8,7 +8,7 @@
 #include <iostream>
 
 //---------------------------------------------------------------------------
-/// Conerts the key ID to a render mode ID.
+/// Converts the key ID to a render mode ID.
 /// @param[in]	key			Character ID.
 /// @param[out]	renderMode	Render mode ID (0 - 9).
 //---------------------------------------------------------------------------
@@ -22,6 +22,26 @@ static void KeyToRenderMode(const TCHAR & key, unsigned int& renderMode)
 
 	// admittedly, a wild hack
 	renderMode = key - 48;
+}
+
+//---------------------------------------------------------------------------
+/// Converts the screen space x coordinate to world space.
+/// @param[in]	x			Screen space x-coordinate.
+/// @param[out]	xf			World space x-coordinate.
+//---------------------------------------------------------------------------
+static void GetXCoordinate(int x, float& xf)
+{
+	xf = ((float(x) / 1280.0f) * 6.0f) - 3.0f;
+}
+
+//---------------------------------------------------------------------------
+/// Converts the screen space y coordinate to world space.
+/// @param[in]	y			Screen space y-coordinate.
+/// @param[out]	yf			World space y-coordinate.
+//---------------------------------------------------------------------------
+static void GetYCoordinate(int y, float& yf)
+{
+	yf = ((float(350 - y) / 350.0f));
 }
 
 //---------------------------------------------------------------------------
@@ -42,8 +62,8 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 			if (y > 500)
 				y = 500;
 
-			settings._dynamicObjectX = ((float(x) / 1280.0f) * 6.0) - 3.0;
-			settings._dynamicObjectY = ((float(350 - y) / 350.0));
+			GetXCoordinate(x, settings._dynamicObjectX);
+			GetYCoordinate(y, settings._dynamicObjectY);
 
 			return;
 		}
@@ -56,10 +76,10 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 			if (y > 500)
 				y = 500;
 
-			settings._dynamicObjectX = ((float(x) / 1280.0f) * 6.0) - 3.0;
-			settings._dynamicObjectY = ((float(350 - y) / 350.0));
+			GetXCoordinate(x, settings._dynamicObjectX);
+			GetYCoordinate(y, settings._dynamicObjectY);
 
-			settings._addSphere = true;
+			settings._addObjectClick = true;
 			return;
 		}
 
@@ -135,13 +155,13 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 void RunLoop(RenderEngine & engine, OSWindow & window)
 {
 	SceneSettings settings;
-	settings._renderMode = ShaderMode::Beauty;
+	settings._renderMode = 0;
 	settings._timeOff = 0.0;
 	settings._timeStep = true;
 	settings._dynamicObjectX = 0.0;
 	settings._dynamicObjectY = 0.0;
 	settings._noise = NoiseMode::NO_NOISE;
-	settings._addSphere = false;
+	settings._addObjectClick = false;
 	settings._removeObject = false;
 	settings._addObject = false;
 
@@ -168,7 +188,7 @@ void RunLoop(RenderEngine & engine, OSWindow & window)
 
 		// reset
 		settings._timeOff = 0.0;
-		settings._addSphere = false;
+		settings._addObjectClick = false;
 		settings._removeObject = false;
 		settings._addObject = false;
 

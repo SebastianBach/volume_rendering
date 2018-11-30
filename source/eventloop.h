@@ -11,4 +11,4 @@
 //---------------------------------------------------------------------------
 void RunLoop(RenderEngine & engine, OSWindow & window);
 
-#endif
+#endif // VOLUME_DEMO_EVENTLOOP_H__

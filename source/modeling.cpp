@@ -12,7 +12,7 @@
 /// @param[in]	uvData		UV data array.
 /// @param[in]	indexSize	The size of indice data.
 /// @param[in]	indexData	Index data array.
-/// @return					False if an error occured.
+/// @return					False if an error occurred.
 //---------------------------------------------------------------------------
 static bool SetPolyData(PolygonObject& poly, 
 	int vertexSize, float * const vertexData,

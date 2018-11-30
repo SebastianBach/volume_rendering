@@ -25,7 +25,7 @@ bool PolygonObject::Init()
 
 	glGenVertexArrays(1, &_vao);
 
-	if (IsNull(_vao, MSG_INFO("Faild to generate VAO"))) return false;
+	if (IsNull(_vao, MSG_INFO("Failed to generate VAO"))) return false;
 
 	return true;
 }
@@ -113,7 +113,7 @@ bool PolygonObject::InitNormals(int count, float* values)
 bool PolygonObject::InitIndice(int count, unsigned int* values)
 {
 	if (IsNull(_vao, MSG_INFO("VAO not set."))) return false;
-	if (IsNullptr(values, MSG_INFO("Invali indice values"))) return false;
+	if (IsNullptr(values, MSG_INFO("Invalid indice values"))) return false;
 	if (IsNull(count, MSG_INFO("Invalid count argument."))) return false;
 
 	glGenBuffers(1, &_indexBuffer);

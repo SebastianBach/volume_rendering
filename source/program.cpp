@@ -19,7 +19,7 @@ static const GLint LOCATION_FAIL = -1;
 /// Utlity function to load a file.
 /// @param[in]	filename		The file location.
 /// @param[out]	text			The string to contain the file content.
-/// @return						False if an error occured.
+/// @return						False if an error occurred.
 //---------------------------------------------------------------------------
 static bool LoadFile(const char* filename, std::string& text)
 {
@@ -50,7 +50,7 @@ static bool LoadFile(const char* filename, std::string& text)
 
 //---------------------------------------------------------------------------
 /// Utility function that returns an error message.
-/// @param[in]	name	The name of an uiform variable.
+/// @param[in]	name	The name of an uniform variable.
 /// @return				The formatted error string.
 //---------------------------------------------------------------------------
 static std::string GetUniformErrorString(const char* name)
@@ -78,7 +78,7 @@ ShaderProgram::~ShaderProgram()
 
 bool ShaderProgram::Init()
 {
-	if (IsNotValue(_program, 0U, MSG_INFO("Programm already created."))) return false;
+	if (IsNotValue(_program, 0U, MSG_INFO("Program already created."))) return false;
 
 	_program = glCreateProgram();
 
@@ -202,7 +202,7 @@ bool ShaderProgram::MakeShader(unsigned int type, const std::string& text, unsig
 bool ShaderProgram::Link()
 {
 	if (IsNull(_program, MSG_INFO("Program not set."))) return false;
-	if (IsNotValue(_isLinked, false, MSG_INFO("Programm already linked."))) return false;
+	if (IsNotValue(_isLinked, false, MSG_INFO("Program already linked."))) return false;
 
 	// link program
 	glLinkProgram(_program);

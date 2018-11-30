@@ -135,4 +135,4 @@ private:
 };
 
 
-#endif
+#endif	// VOLUME_DEMO_PROGRAM_H__

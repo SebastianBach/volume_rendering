@@ -37,7 +37,7 @@ struct ErrorInfo
 /// @param[in]	type		The message type (MsgType).
 /// @param[in]	file		The file path.
 /// @param[in]	line		The line number.
-/// @param[ni]	function	The function name
+/// @param[in]	function	The function name
 //---------------------------------------------------------------------------
 void WriteToLog(const char* message, MsgType type, const char* file, int line, const char* function);
 

@@ -12,10 +12,16 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <glm/gtx/color_space.hpp>
 
+// z-position of all objects
+static const float Z_POS = -1.0f;
+
 ObjectArray::ObjectArray()
 {
 	_count = 0;
 	_countChanged = false;
+
+	// see https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGet.xhtml
+	static_assert(MAX_OBJECT_COUNT <= 256, "Only array size of 256 is guaranteed.");
 }
 
 ObjectArray::~ObjectArray()
@@ -66,7 +72,7 @@ bool ObjectArray::SetDynamicObject(float x, float y)
 {
 	_userObject.x = x;
 	_userObject.y = y;
-	_userObject.z = -1;
+	_userObject.z = Z_POS;
 
 	return true;
 }
@@ -146,7 +152,7 @@ void ObjectArray::Animation(float step)
 			glm::vec3 targetPos;
 			targetPos.x = x;
 			targetPos.y = y;
-			targetPos.z = -1.0;
+			targetPos.z = Z_POS;
 
 			movement = targetPos - currentPos;
 
@@ -282,31 +288,31 @@ bool RenderEngine::CreateScene()
 		if (IsFalse(_objects.AddObject(), MSG_INFO("Could not add object."))) return false;
 	}
 
-	// define standard matrcies
-	_camPos = glm::vec3(0, 0, 2);
-	_viewMatrix = glm::lookAt(_camPos, glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
+	// define standard matrices
+	const glm::vec3 camPos = glm::vec3(0, 0, 2);
+	const glm::mat4 viewMatrix = glm::lookAt(camPos, glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	_projectionMatrix = glm::perspectiveFov(1.0f, 1280.0f, 720.0f, 0.1f, 5.0f);
+	const glm::mat4 projectionMatrix = glm::perspectiveFov(1.0f, 1280.0f, 720.0f, 0.1f, 5.0f);
 
-	_viewPlaneModelMatrix = glm::mat4(1.0f);
-	_viewPlaneModelMatrix = glm::translate(_viewPlaneModelMatrix, glm::vec3(-2, -0.75, 0));
-	_viewPlaneModelMatrix = glm::scale(_viewPlaneModelMatrix, glm::vec3(4, 2, 2));
+	glm::mat4 viewPlaneModelMatrix = glm::mat4(1.0f);
+	viewPlaneModelMatrix = glm::translate(viewPlaneModelMatrix, glm::vec3(-2, -0.75, 0));
+	viewPlaneModelMatrix = glm::scale(viewPlaneModelMatrix, glm::vec3(4, 2, 2));
 
 
-	_groundPlaneModelMatrix = glm::mat4(1.0f);
-	_groundPlaneModelMatrix = glm::translate(_groundPlaneModelMatrix, glm::vec3(-3, -1.5, -2));
-	_groundPlaneModelMatrix = glm::scale(_groundPlaneModelMatrix, glm::vec3(10, 2, 2));
-	_groundPlaneModelMatrix = glm::rotate(_groundPlaneModelMatrix, glm::radians(90.0f), glm::vec3(1, 0, 0));
+	glm::mat4 groundPlaneModelMatrix = glm::mat4(1.0f);
+	groundPlaneModelMatrix = glm::translate(groundPlaneModelMatrix, glm::vec3(-3, -1.5, -2));
+	groundPlaneModelMatrix = glm::scale(groundPlaneModelMatrix, glm::vec3(10, 2, 2));
+	groundPlaneModelMatrix = glm::rotate(groundPlaneModelMatrix, glm::radians(90.0f), glm::vec3(1, 0, 0));
 
 	{
 		if (IsFalse(_shader.Use(), MSG_INFO("Could not use shader."))) return false;
 
-		const glm::mat4 mv = _viewMatrix * _viewPlaneModelMatrix;
-		const glm::mat4 MVP = _projectionMatrix * mv;
+		const glm::mat4 mv = viewMatrix * viewPlaneModelMatrix;
+		const glm::mat4 MVP = projectionMatrix * mv;
 
 		if (!SetUniform(_shader, "u_mvp", MVP)) return false;
-		if (!SetUniform(_shader, "u_modelMatrix", _viewPlaneModelMatrix)) return false;
-		if (!SetUniform(_shader, "u_camPos", _camPos)) return false;
+		if (!SetUniform(_shader, "u_modelMatrix", viewPlaneModelMatrix)) return false;
+		if (!SetUniform(_shader, "u_camPos", camPos)) return false;
 		if (!SetUniform(_shader, "u_noiseTexture", unsigned int(0))) return false;
 
 		_shader.End();
@@ -314,20 +320,18 @@ bool RenderEngine::CreateScene()
 
 	{
 		// draw ground plane
-		const glm::mat4 MVground = _viewMatrix * _groundPlaneModelMatrix;
-		const glm::mat4 MVPground = _projectionMatrix * MVground;
+		const glm::mat4 MVground = viewMatrix * groundPlaneModelMatrix;
+		const glm::mat4 MVPground = projectionMatrix * MVground;
 
 		if (IsFalse(_groundShader.Use(), MSG_INFO("Could not enable ground shader"))) return false;
 		if (IsFalse(_groundShader.SetUniform("u_mvp", MVPground), MSG_INFO("Could not set MVP."))) return false;
-		if (IsFalse(_groundShader.SetUniform("u_modelMatrix", _groundPlaneModelMatrix), MSG_INFO("Could not set model matrix."))) return false;
-		if (!SetUniform(_groundShader, "u_camPos", _camPos)) return false;
+		if (IsFalse(_groundShader.SetUniform("u_modelMatrix", groundPlaneModelMatrix), MSG_INFO("Could not set model matrix."))) return false;
+		if (!SetUniform(_groundShader, "u_camPos", camPos)) return false;
 
 		_groundShader.End();
 	}
 
-
-
-	DataMessage(MSG_INFO(("Scene setup done...")));
+	InfoMessage(MSG_INFO(("Scene setup done...")));
 
 	return true;
 }
@@ -343,8 +347,6 @@ void RenderEngine::UpdateScene(const SceneSettings& settings)
 
 	_step = _step + _settings._timeOff;
 
-	_objects.Animation(_step);
-
 	_objects.SetDynamicObject(settings._dynamicObjectX, settings._dynamicObjectY);
 
 	if (settings._removeObject)
@@ -353,7 +355,8 @@ void RenderEngine::UpdateScene(const SceneSettings& settings)
 	if (settings._addObject)
 		_objects.AddObject();
 
-	if (settings._addSphere)
+	// add object from mouse click
+	if (settings._addObjectClick)
 	{
 		if (_objects.GetObjectCount() >= MAX_OBJECT_COUNT)
 			return;
@@ -361,17 +364,17 @@ void RenderEngine::UpdateScene(const SceneSettings& settings)
 		glm::vec3 pos;
 		pos.x = settings._dynamicObjectX;
 		pos.y = settings._dynamicObjectY;
-		pos.z = -1.0;
+		pos.z = Z_POS;
 
-		glm::vec3 color;
-		color.x = 1.0;
-		color.y = 0.0;
-		color.z = 1.0;
-
+		// color will be set in Animation()
+		glm::vec3 color(0.0);
 		int index = 0;
+
 		if (IsFalse(_objects.AddObject(pos, color, index), MSG_INFO("Could not add object")))
 			return;
 	}
+
+	_objects.Animation(_step);
 }
 
 #include <iostream>
@@ -379,7 +382,6 @@ void RenderEngine::UpdateScene(const SceneSettings& settings)
 bool RenderEngine::Render()
 {
 	// set up buffers
-	//glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -465,8 +467,6 @@ bool RenderEngine::CreateNoiseTexture()
 
 	const float widthF = float(width);
 	const float heightF = float(height);
-
-
 	const float scale = 6.5f;
 
 	for (int y = 0; y< height; ++y)
@@ -493,7 +493,7 @@ bool RenderEngine::CreateNoiseTexture()
 		}
 	}
 
-	//setup OpenGL texture and bind to texture unit 0
+	// setup OpenGL texture and bind to texture unit 0
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _noiseTexture);

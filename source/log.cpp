@@ -190,7 +190,7 @@ void error_sys_intern::WriteToLog(const char* message, MsgType type, const char*
 
 	if (IsError(type))
 	{
-		// You hit this debug break beause some error occured.
+		// You hit this debug break because some error occurred.
 		// Check the output console or the log file for more info.
 
 		DebugBreak();
