@@ -8,67 +8,66 @@
 class PolygonObject
 {
 public:
-	//---------------------------------------------------------------------------
-	/// Constructor
-	//---------------------------------------------------------------------------
-	PolygonObject();
-	//---------------------------------------------------------------------------
-	/// Destructor
-	//---------------------------------------------------------------------------
-	~PolygonObject();
+    //---------------------------------------------------------------------------
+    /// Constructor
+    //---------------------------------------------------------------------------
+    PolygonObject();
+    //---------------------------------------------------------------------------
+    /// Destructor
+    //---------------------------------------------------------------------------
+    ~PolygonObject();
 
-	//---------------------------------------------------------------------------
-	/// Prepears the object.
-	/// @return				False if an error occurred.
-	//---------------------------------------------------------------------------
-	bool Init();
+    //---------------------------------------------------------------------------
+    /// Prepears the object.
+    /// @return				False if an error occurred.
+    //---------------------------------------------------------------------------
+    bool Init();
 
-	//---------------------------------------------------------------------------
-	/// Stores vertex data.
-	/// @param[in]	count	The number of all float elements.
-	/// @param[in]	values	An array with float values.
-	/// @return				False if an error occurred.
-	//---------------------------------------------------------------------------
-	bool InitVertice(int count, float* values);
+    //---------------------------------------------------------------------------
+    /// Stores vertex data.
+    /// @param[in]	count	The number of all float elements.
+    /// @param[in]	values	An array with float values.
+    /// @return				False if an error occurred.
+    //---------------------------------------------------------------------------
+    bool InitVertice(int count, float* values);
 
-	//---------------------------------------------------------------------------
-	/// Stores UV data.
-	/// @param[in]	count	The number of all float elements.
-	/// @param[in]	values	An array with float values.
-	/// @return				False if an error occurred.
-	//---------------------------------------------------------------------------
-	bool InitUVs(int count, float* values);
+    //---------------------------------------------------------------------------
+    /// Stores UV data.
+    /// @param[in]	count	The number of all float elements.
+    /// @param[in]	values	An array with float values.
+    /// @return				False if an error occurred.
+    //---------------------------------------------------------------------------
+    bool InitUVs(int count, float* values);
 
-	//---------------------------------------------------------------------------
-	/// Stores normal data.
-	/// @param[in]	count	The number of all float elements.
-	/// @param[in]	values	An array with float values.
-	/// @return				False if an error occurred.
-	//---------------------------------------------------------------------------
-	bool InitNormals(int count, float* values);
+    //---------------------------------------------------------------------------
+    /// Stores normal data.
+    /// @param[in]	count	The number of all float elements.
+    /// @param[in]	values	An array with float values.
+    /// @return				False if an error occurred.
+    //---------------------------------------------------------------------------
+    bool InitNormals(int count, float* values);
 
-	//---------------------------------------------------------------------------
-	/// Stores index data.
-	/// @param[in]	count	The number of all int elements.
-	/// @param[in]	values	An array with unsigned int values.
-	/// @return				False if an error occurred.
-	//---------------------------------------------------------------------------
-	bool InitIndice(int count, unsigned int* values);
+    //---------------------------------------------------------------------------
+    /// Stores index data.
+    /// @param[in]	count	The number of all int elements.
+    /// @param[in]	values	An array with unsigned int values.
+    /// @return				False if an error occurred.
+    //---------------------------------------------------------------------------
+    bool InitIndice(int count, unsigned int* values);
 
-	//---------------------------------------------------------------------------
-	/// Draws the polygon object.
-	/// @return				False if an error occurred.
-	//---------------------------------------------------------------------------
-	bool Draw() const;
+    //---------------------------------------------------------------------------
+    /// Draws the polygon object.
+    /// @return				False if an error occurred.
+    //---------------------------------------------------------------------------
+    bool Draw() const;
+
 public:
-
-	unsigned int _vao;						///> OpenGL VAO ID.
-	unsigned int _vertexBuffer;				///> Vertex buffer ID.
-	unsigned int _uvBuffer;					///> UV buffer ID.
-	unsigned int _normalBuffer;				///> Normal buffer ID.
-	unsigned int _indexBuffer;				///> Index buffer ID.
-	unsigned int _indexCount;				///> Number of indice.		
+    unsigned int _vao;          ///> OpenGL VAO ID.
+    unsigned int _vertexBuffer; ///> Vertex buffer ID.
+    unsigned int _uvBuffer;     ///> UV buffer ID.
+    unsigned int _normalBuffer; ///> Normal buffer ID.
+    unsigned int _indexBuffer;  ///> Index buffer ID.
+    unsigned int _indexCount;   ///> Number of indice.
 };
 
-
-#endif	// VOLUME_DEMO_POLYGONOBJECT_H__
+#endif // VOLUME_DEMO_POLYGONOBJECT_H__

@@ -9,6 +9,6 @@
 /// @paran[in] engine		The render engine.
 /// @param[in] window		The window to show the rendering result.
 //---------------------------------------------------------------------------
-void RunLoop(RenderEngine & engine, OSWindow & window);
+void RunLoop(RenderEngine& engine, OSWindow& window);
 
 #endif // VOLUME_DEMO_EVENTLOOP_H__

@@ -17,4 +17,4 @@ bool CreateTriangle(PolygonObject& poly);
 //---------------------------------------------------------------------------
 bool CreatePlane(PolygonObject& poly);
 
-#endif	// VOLUME_DEMO_MODELING_H__
+#endif // VOLUME_DEMO_MODELING_H__
