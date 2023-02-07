@@ -64,10 +64,8 @@ bool UnitTestLogSystem()
     // report errors
     if (foundErrors.size() > 0)
     {
-        for (const std::string& error : foundErrors)
-        {
+        for (const auto& error : foundErrors)
             ErrorMessage(MSG_INFO(error.c_str()));
-        }
 
         return false;
     }
@@ -127,7 +125,7 @@ static void PrintError(std::ofstream& stream, error_sys_intern::MsgType type,
 
         stream << " at line ";
 
-        const std::string lineStr = std::to_string(line);
+        const auto lineStr = std::to_string(line);
         stream << lineStr;
 
         stream << " (";
@@ -179,12 +177,12 @@ void error_sys_intern::WriteToLog(const char* message, MsgType type,
     GetModuleFileNameA(GetModuleHandle(0), appFilePath, sizeof(appFilePath));
 
     // create log file location next to the application location
-    std::string       logFilePath(appFilePath);
-    const std::size_t found = logFilePath.find("exe");
+    std::string logFilePath{appFilePath};
+    const auto  found = logFilePath.find("exe");
     logFilePath.replace(found, 3, "txt");
 
     // write to file
-    std::ofstream stream(logFilePath, std::ofstream::app);
+    std::ofstream stream{logFilePath, std::ofstream::app};
 
     if (type != MsgType::Data)
         PrintTime(stream);

@@ -1,7 +1,7 @@
 #ifndef VOLUME_DEMO_LOG_H__
 #define VOLUME_DEMO_LOG_H__
 
-#include <functional>
+#include <string>
 
 //---------------------------------------------------------------------------
 /// Tests the error handling system.
@@ -118,7 +118,7 @@ template <typename F> static void ErrorMessage(const char* functionName, F&& f)
 /// @return					True if the given pointer is a nullptr.
 //---------------------------------------------------------------------------
 template <typename T, typename F>
-static bool IsNullptr(const T* const ptr, const char* function, F&& f)
+static auto IsNullptr(const T* const ptr, const char* function, F&& f)
 {
     if (ptr == nullptr)
     {
@@ -139,7 +139,7 @@ static bool IsNullptr(const T* const ptr, const char* function, F&& f)
 /// @return					True if the given pointer is false.
 //---------------------------------------------------------------------------
 template <typename F>
-static bool IsFalse(bool value, const char* function, F&& f)
+static auto IsFalse(bool value, const char* function, F&& f)
 {
     if (value == false)
     {
@@ -160,7 +160,7 @@ static bool IsFalse(bool value, const char* function, F&& f)
 /// @return					True if the given pointer is null.
 //---------------------------------------------------------------------------
 template <typename T, typename F>
-static bool IsNull(const T& value, const char* function, F&& f)
+static auto IsNull(const T& value, const char* function, F&& f)
 {
     if (value == 0)
     {
@@ -182,7 +182,7 @@ static bool IsNull(const T& value, const char* function, F&& f)
 /// value.
 //---------------------------------------------------------------------------
 template <typename T, typename F>
-static bool IsValue(const T& value, const T& ref, const char* function, F&& f)
+static auto IsValue(const T& value, const T& ref, const char* function, F&& f)
 {
     if (value == ref)
     {
@@ -205,7 +205,7 @@ static bool IsValue(const T& value, const T& ref, const char* function, F&& f)
 /// reference value.
 //---------------------------------------------------------------------------
 template <typename T, typename F>
-static bool IsNotValue(const T& value, const T& ref, const char* function,
+static auto IsNotValue(const T& value, const T& ref, const char* function,
                        F&& f)
 {
     if (value != ref)

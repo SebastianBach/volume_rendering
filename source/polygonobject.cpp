@@ -11,7 +11,7 @@ PolygonObject::PolygonObject()
     _uvBuffer     = 0;
     _normalBuffer = 0;
     _indexBuffer  = 0;
-    _indexBuffer  = 0;
+    _indexCount   = 0;
 }
 
 PolygonObject::~PolygonObject() {}

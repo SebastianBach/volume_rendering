@@ -1,7 +1,7 @@
 #ifndef VOLUME_DEMO_MODELING_H__
 #define VOLUME_DEMO_MODELING_H__
 
-#include "polygonobject.h"
+class PolygonObject;
 
 //---------------------------------------------------------------------------
 /// Creates a triangle.

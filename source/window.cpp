@@ -18,9 +18,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
-        HDC         hdc = BeginPaint(hwnd, &ps);
+        auto        hdc = BeginPaint(hwnd, &ps);
 
-        FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+        // FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+        // we should do rendering here
 
         EndPaint(hwnd, &ps);
 
@@ -35,6 +36,7 @@ OSWindow::OSWindow()
 {
     _handle     = nullptr;
     _oglContext = nullptr;
+    _hdc        = nullptr;
 }
 
 OSWindow::~OSWindow()
@@ -45,8 +47,8 @@ OSWindow::~OSWindow()
 bool OSWindow::Init(int w, int h)
 {
     // getting the hinstance
-    HMODULE   module    = GetModuleHandle(NULL);
-    HINSTANCE hinstance = (HINSTANCE)module;
+    auto module    = GetModuleHandle(NULL);
+    auto hinstance = (HINSTANCE)module;
 
     HWND windowHandle;
 
@@ -59,7 +61,7 @@ bool OSWindow::Init(int w, int h)
     windowClass.style       = 0;
     windowClass.lpfnWndProc = WindowProc; // window function
 
-    LPCSTR className = "VolumeDemo Window";
+    auto className = "VolumeDemo Window";
 
     windowClass.cbClsExtra    = 0;
     windowClass.cbWndExtra    = 0;
@@ -72,7 +74,7 @@ bool OSWindow::Init(int w, int h)
     windowClass.hIconSm       = LoadIcon(NULL, IDI_APPLICATION);
 
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms633587%28v=vs.85%29.aspx
-    const bool resultRegister = RegisterClassEx(&windowClass);
+    const auto resultRegister = RegisterClassEx(&windowClass);
     if (IsFalse(resultRegister, MSG_INFO("Could not register window class")))
         return false;
 
@@ -106,7 +108,7 @@ bool OSWindow::CreateOglContext()
     if (IsNullptr(_handle, MSG_INFO("Handle not set.")))
         return false;
 
-    HDC hdc = GetDC((HWND)_handle);
+    auto hdc = GetDC((HWND)_handle);
 
     if (IsNullptr(hdc, MSG_INFO("Could not get device context.")))
         return false;
@@ -173,7 +175,7 @@ bool OSWindow::MakeCurrentContext()
     if (IsNullptr(_oglContext, MSG_INFO("OGL context not set")))
         return false;
 
-    const BOOL res = wglMakeCurrent(_hdc, _oglContext);
+    const auto res = wglMakeCurrent(_hdc, _oglContext);
 
     if (IsNotValue(res, TRUE,
                    MSG_INFO("Could not make OGL contex the current context.")))
@@ -187,10 +189,10 @@ bool OSWindow::RemoveContext()
     // kill OpenGL context
     wglMakeCurrent(NULL, NULL);
 
-    HGLRC hglrc = _oglContext;
+    auto hglrc = _oglContext;
     wglDeleteContext(hglrc);
-    HWND hwnd = (HWND)_handle;
-    HDC  hdc  = _hdc;
+    auto hwnd = (HWND)_handle;
+    auto hdc  = _hdc;
     ReleaseDC(hwnd, hdc);
 
     return true;
@@ -198,12 +200,12 @@ bool OSWindow::RemoveContext()
 
 bool OSWindow::Swap() const
 {
-    const BOOL res = SwapBuffers(_hdc);
+    const auto res = SwapBuffers(_hdc);
 
     if (IsNotValue(res, TRUE, MSG_INFO("Could not swap buffers.")))
         return false;
 
-    const BOOL resInvaidate = InvalidateRect((HWND)_handle, nullptr, false);
+    const auto resInvaidate = InvalidateRect((HWND)_handle, nullptr, false);
 
     if (IsNotValue(resInvaidate, TRUE,
                    MSG_INFO("Could not invalidate rectangle.")))
@@ -230,10 +232,10 @@ bool OSWindow::Close()
 
     DestroyWindow((HWND)_handle);
 
-    LPCSTR className = "VolumeDemo Window";
+    auto className = "VolumeDemo Window";
 
-    HMODULE   module    = GetModuleHandle(NULL);
-    HINSTANCE hinstance = (HINSTANCE)module;
+    auto module    = GetModuleHandle(NULL);
+    auto hinstance = (HINSTANCE)module;
 
     UnregisterClass(className, hinstance);
 

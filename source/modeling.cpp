@@ -1,5 +1,6 @@
 #include "modeling.h"
 #include "log.h"
+#include "polygonobject.h"
 
 //---------------------------------------------------------------------------
 /// Stores the polygon data in the given PolygonObject.
@@ -14,7 +15,7 @@
 /// @param[in]	indexData	Index data array.
 /// @return					False if an error occurred.
 //---------------------------------------------------------------------------
-static bool SetPolyData(PolygonObject& poly, int vertexSize,
+static auto SetPolyData(PolygonObject& poly, int vertexSize,
                         float* const vertexData, int normalSize,
                         float* const normalData, int uvSize,
                         float* const uvData, int indexSize,
@@ -56,8 +57,8 @@ void SetVector(float* const v, unsigned int index, unsigned int count, float x,
         return;
     }
 
-    const unsigned int startOffset = index * 3;
-    const unsigned int maxOffset   = startOffset + 2;
+    const auto startOffset = index * 3;
+    const auto maxOffset   = startOffset + 2;
 
     if (maxOffset >= count)
     {
@@ -87,8 +88,8 @@ static void SetUV(float* const v, unsigned int index, unsigned int count,
         return;
     }
 
-    const unsigned int startOffset = index * 2;
-    const unsigned int maxOffset   = startOffset + 1;
+    const auto startOffset = index * 2;
+    const auto maxOffset   = startOffset + 1;
 
     if (maxOffset >= count)
     {
@@ -118,8 +119,8 @@ void SetTriangle(unsigned int* const v, unsigned int index, unsigned int count,
         return;
     }
 
-    const unsigned int startOffset = index * 3;
-    const unsigned int maxOffset   = startOffset + 2;
+    const auto startOffset = index * 3;
+    const auto maxOffset   = startOffset + 2;
 
     if (maxOffset >= count)
     {
@@ -137,21 +138,21 @@ bool CreateTriangle(PolygonObject& poly)
     if (IsFalse(poly.Init(), MSG_INFO("Could not create polygon object.")))
         return false;
 
-    const unsigned int vertexCount   = 3;
-    const unsigned int triangleCount = 1;
+    constexpr auto vertexCount   = 3;
+    constexpr auto triangleCount = 1;
 
     // vertice
-    const unsigned int vertexDataSize = vertexCount * 3;
-    float              vertexData[vertexDataSize];
+    constexpr auto vertexDataSize = vertexCount * 3;
+    float          vertexData[vertexDataSize];
     // uvs
-    const unsigned int uvDataSize = vertexCount * 2;
-    float              uvData[uvDataSize];
+    constexpr auto uvDataSize = vertexCount * 2;
+    float          uvData[uvDataSize];
     // normals
-    const unsigned int normalDataSize = vertexCount * 3;
-    float              normalData[normalDataSize];
+    constexpr auto normalDataSize = vertexCount * 3;
+    float          normalData[normalDataSize];
     // indice
-    const unsigned int indexDataSize = triangleCount * 3;
-    unsigned int       indexData[indexDataSize];
+    constexpr auto indexDataSize = triangleCount * 3;
+    unsigned int   indexData[indexDataSize];
 
     // set vertice
     SetVector(vertexData, 0, vertexDataSize, 0.0, 0.0, 0.0);
@@ -173,7 +174,7 @@ bool CreateTriangle(PolygonObject& poly)
 
     // set data
 
-    const bool res =
+    const auto res =
         SetPolyData(poly, vertexDataSize, vertexData, normalDataSize,
                     normalData, uvDataSize, uvData, indexDataSize, indexData);
 
@@ -188,22 +189,22 @@ bool CreatePlane(PolygonObject& poly)
     if (IsFalse(poly.Init(), MSG_INFO("Could not create polygon object.")))
         return false;
 
-    const unsigned int vertexCount   = 4;
-    const unsigned int triangleCount = 2;
+    constexpr auto vertexCount   = 4;
+    constexpr auto triangleCount = 2;
 
     // vertice
-    const unsigned int vertexDataSize = vertexCount * 3;
-    float              vertexData[vertexDataSize];
+    constexpr auto vertexDataSize = vertexCount * 3;
+    float          vertexData[vertexDataSize];
     // uvs
-    const unsigned int uvDataSize = vertexCount * 2;
-    float              uvData[uvDataSize];
+    constexpr auto uvDataSize = vertexCount * 2;
+    float          uvData[uvDataSize];
     // normals
     // todo: set per-face normals
-    const unsigned int normalDataSize = vertexCount * 3;
-    float              normalData[normalDataSize];
+    constexpr auto normalDataSize = vertexCount * 3;
+    float          normalData[normalDataSize];
     // indice
-    const unsigned int indexDataSize = triangleCount * 3;
-    unsigned int       indexData[indexDataSize];
+    constexpr auto indexDataSize = triangleCount * 3;
+    unsigned int   indexData[indexDataSize];
 
     // set vertice
     SetVector(vertexData, 0, vertexDataSize, 0.0, 0.0, 0.0);
@@ -228,7 +229,7 @@ bool CreatePlane(PolygonObject& poly)
     SetTriangle(indexData, 1, indexDataSize, 0, 2, 3);
 
     // set data
-    const bool res =
+    const auto res =
         SetPolyData(poly, vertexDataSize, vertexData, normalDataSize,
                     normalData, uvDataSize, uvData, indexDataSize, indexData);
 

@@ -1,16 +1,13 @@
 #ifndef VOLUME_DEMO_RENDERENGINE_H__
 #define VOLUME_DEMO_RENDERENGINE_H__
 
-#include "polygonobject.h"
-#include "program.h"
+// window.h with <windows> before program.h with glad.h
 #include "window.h"
+#include "program.h"
 
+#include "polygonobject.h"
 #include <vector>
 
-//---------------------------------------------------------------------------
-/// Maximum number of objects.
-//---------------------------------------------------------------------------
-static const int MAX_OBJECT_COUNT = 18;
 
 //---------------------------------------------------------------------------
 /// Utility class storing all information on the scene objects.

@@ -3,8 +3,8 @@
 
 #include "eventloop.h"
 #include "log.h"
+#include "renderengine.h"
 #include <iostream>
-
 
 //---------------------------------------------------------------------------
 /// Converts the key ID to a render mode ID.
@@ -56,8 +56,8 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
     {
     case WM_MOUSEMOVE:
     {
-        const int x = GET_X_LPARAM(msg.lParam);
-        int       y = GET_Y_LPARAM(msg.lParam);
+        const auto x = GET_X_LPARAM(msg.lParam);
+        auto       y = GET_Y_LPARAM(msg.lParam);
 
         if (y > 500)
             y = 500;
@@ -70,8 +70,8 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 
     case WM_LBUTTONDOWN:
     {
-        const int x = GET_X_LPARAM(msg.lParam);
-        int       y = GET_Y_LPARAM(msg.lParam);
+        const auto x = GET_X_LPARAM(msg.lParam);
+        auto       y = GET_Y_LPARAM(msg.lParam);
 
         if (y > 500)
             y = 500;
@@ -85,7 +85,7 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 
     case WM_KEYDOWN:
     {
-        const WPARAM key = msg.wParam;
+        const auto key = msg.wParam;
 
         if (key == VK_ESCAPE)
         {
@@ -120,7 +120,7 @@ static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
         }
 
         // character keys pressed
-        const TCHAR ch = (TCHAR)key;
+        const auto ch = (TCHAR)key;
 
         if (ch == 'N')
         {
@@ -166,7 +166,7 @@ void RunLoop(RenderEngine& engine, OSWindow& window)
     settings._addObject      = false;
 
     MSG  msg;
-    bool run = true;
+    auto run = true;
 
     while (run)
     {
@@ -193,7 +193,7 @@ void RunLoop(RenderEngine& engine, OSWindow& window)
         settings._addObject      = false;
 
         // render scene
-        const bool renderResult = engine.Render();
+        const auto renderResult = engine.Render();
 
         if (renderResult == false)
         {
@@ -202,7 +202,7 @@ void RunLoop(RenderEngine& engine, OSWindow& window)
         }
 
         // swap buffers
-        const bool swapResult = window.Swap();
+        const auto swapResult = window.Swap();
         if (swapResult == false)
             run = false;
     }

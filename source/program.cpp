@@ -10,7 +10,7 @@
 // glGetUniformLocation returns -1 if the given name could not be found
 // see
 // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml
-static const GLint LOCATION_FAIL = -1;
+static constexpr GLint LOCATION_FAIL = -1;
 
 //---------------------------------------------------------------------------
 /// Utlity function to load a file.
@@ -18,7 +18,7 @@ static const GLint LOCATION_FAIL = -1;
 /// @param[out]	text			The string to contain the file content.
 /// @return						False if an error occurred.
 //---------------------------------------------------------------------------
-static bool LoadFile(const char* filename, std::string& text)
+static auto LoadFile(const char* filename, std::string& text)
 {
     if (IsNullptr(filename, MSG_INFO("Invalid filename argument")))
         return false;
@@ -51,7 +51,7 @@ static bool LoadFile(const char* filename, std::string& text)
 /// @param[in]	name	The name of an uniform variable.
 /// @return				The formatted error string.
 //---------------------------------------------------------------------------
-static std::string GetUniformErrorString(const char* name)
+static auto GetUniformErrorString(const char* name)
 {
     std::string str;
     str.append("Could not access uniform location \"");
@@ -96,7 +96,7 @@ bool ShaderProgram::LoadVertexShader(const char* filename)
     if (IsFalse(LoadFile(filename, text), MSG_INFO("Could not load file.")))
         return false;
 
-    const bool res = MakeShader(GL_VERTEX_SHADER, text, _vertexShader);
+    const auto res = MakeShader(GL_VERTEX_SHADER, text, _vertexShader);
     if (IsFalse(res, MSG_INFO("Could not make vertex shader.")))
         return false;
 
@@ -126,9 +126,9 @@ bool ShaderProgram::LoadFragmentShader(const char* head, const char* body)
                 MSG_INFO("Could not load body file.")))
         return false;
 
-    const std::string fullText = headText + bodyText;
+    const auto fullText = headText + bodyText;
 
-    const bool res = MakeShader(GL_FRAGMENT_SHADER, fullText, _fragmentShader);
+    const auto res = MakeShader(GL_FRAGMENT_SHADER, fullText, _fragmentShader);
     if (IsFalse(res, MSG_INFO("Could not make fragment shader.")))
         return false;
 
@@ -149,7 +149,7 @@ bool ShaderProgram::LoadFragmentShader(const char* filename)
     if (IsFalse(LoadFile(filename, text), MSG_INFO("Could not load File.")))
         return false;
 
-    const bool res = MakeShader(GL_FRAGMENT_SHADER, text, _fragmentShader);
+    const auto res = MakeShader(GL_FRAGMENT_SHADER, text, _fragmentShader);
 
     if (IsFalse(res, MSG_INFO("Could make fragment shader.")))
         return false;
@@ -166,7 +166,7 @@ bool ShaderProgram::MakeShader(unsigned int type, const std::string& text,
         return false;
 
     // create new shader
-    const GLuint shader = glCreateShader(type);
+    const auto shader = glCreateShader(type);
     if (IsNull(shader, MSG_INFO("Could not create shader.")))
         return false;
 
@@ -188,7 +188,7 @@ bool ShaderProgram::MakeShader(unsigned int type, const std::string& text,
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 
         // allocate memory for error message
-        GLchar* const infoLog = new GLchar[infoLogLength];
+        auto infoLog = new GLchar[infoLogLength];
         if (IsNullptr(infoLog,
                       MSG_INFO("Could not allocate memory for error message.")))
             return false;
@@ -221,7 +221,7 @@ bool ShaderProgram::Link()
     glLinkProgram(_program);
 
     // get link status
-    int status = 0;
+    auto status = 0;
     glGetProgramiv(_program, GL_LINK_STATUS, &status);
 
     // check link status
@@ -238,7 +238,7 @@ bool ShaderProgram::SetUniform(const char* name, const glm::mat4& m)
     if (IsNull(_program, MSG_INFO("Program not set.")))
         return false;
 
-    const GLint location = GetUniformLocation(name);
+    const auto location = GetUniformLocation(name);
     if (IsValue(location, LOCATION_FAIL,
                 MSG_INFO(GetUniformErrorString(name).c_str())))
         return false;
@@ -253,7 +253,7 @@ bool ShaderProgram::SetUniform(const char* name, const glm::vec3& v)
     if (IsNull(_program, MSG_INFO("Program not set.")))
         return false;
 
-    const GLint location = GetUniformLocation(name);
+    const auto location = GetUniformLocation(name);
     if (IsValue(location, LOCATION_FAIL,
                 MSG_INFO(GetUniformErrorString(name).c_str())))
         return false;
@@ -268,7 +268,7 @@ bool ShaderProgram::SetUniform(const char* name, const glm::float32& v)
     if (IsNull(_program, MSG_INFO("Program not set.")))
         return false;
 
-    const GLint location = GetUniformLocation(name);
+    const auto location = GetUniformLocation(name);
     if (IsValue(location, LOCATION_FAIL,
                 MSG_INFO(GetUniformErrorString(name).c_str())))
         return false;
@@ -283,7 +283,7 @@ bool ShaderProgram::SetUniform(const char* name, unsigned int v)
     if (IsNull(_program, MSG_INFO("Program not set.")))
         return false;
 
-    const GLint location = GetUniformLocation(name);
+    const auto location = GetUniformLocation(name);
     if (IsValue(location, LOCATION_FAIL,
                 MSG_INFO(GetUniformErrorString(name).c_str())))
         return false;
@@ -302,7 +302,7 @@ bool ShaderProgram::SetUniform(const char* name, const glm::vec3* const v,
     if (IsNull(count, MSG_INFO("Invalid argument count.")))
         return false;
 
-    const GLint location = GetUniformLocation(name);
+    const auto location = GetUniformLocation(name);
     if (IsValue(location, LOCATION_FAIL,
                 MSG_INFO(GetUniformErrorString(name).c_str())))
         return false;

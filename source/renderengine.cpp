@@ -13,12 +13,16 @@
 #include <glm/gtx/color_space.hpp>
 
 // z-position of all objects
-static const float Z_POS = -1.0f;
+static constexpr auto Z_POS = -1.0f;
+
+/// Maximum number of objects.
+static constexpr auto MAX_OBJECT_COUNT = 18;
 
 ObjectArray::ObjectArray()
 {
     _count        = 0;
     _countChanged = false;
+    _userObject   = {};
 
     // see https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGet.xhtml
     static_assert(MAX_OBJECT_COUNT <= 256,
@@ -50,7 +54,7 @@ bool ObjectArray::AddObject()
     if (_count == MAX_OBJECT_COUNT)
         return false;
 
-    glm::vec3 null(0.0);
+    glm::vec3 null{0.0};
 
     _pos.push_back(null);
     _colors.push_back(null);
@@ -109,8 +113,8 @@ void ObjectArray::Animation(float step)
     if (_count < 2)
         return;
 
-    float       hue     = 180.0f;
-    const float hueStep = 360.0f / (float(_count));
+    auto       hue     = 180.0f;
+    const auto hueStep = 360.0f / (float(_count));
 
     for (int i = 0; i < _count; ++i)
     {
@@ -126,8 +130,8 @@ void ObjectArray::Animation(float step)
             hue += hueStep;
         }
 
-        const glm::vec3 currentPos = _pos[i];
-        const glm::vec3 distance   = _userObject - currentPos;
+        const auto currentPos = _pos[i];
+        const auto distance   = _userObject - currentPos;
 
         glm::vec3 movement(0.0);
 
@@ -140,11 +144,11 @@ void ObjectArray::Animation(float step)
         }
         else
         {
-            float scale = (6.28f / (float(_count))) * float(i);
+            auto scale = (6.28f / (float(_count))) * float(i);
 
-            float offset = (step * .01f) + scale;
-            float x      = sin(offset) * 2.0f;
-            float y      = (cos(offset) * 0.7f) + 0.25f;
+            auto offset = (step * .01f) + scale;
+            auto x      = sin(offset) * 2.0f;
+            auto y      = (cos(offset) * 0.7f) + 0.25f;
 
             glm::vec3 targetPos;
             targetPos.x = x;
@@ -158,7 +162,7 @@ void ObjectArray::Animation(float step)
             movement.z *= 0.1f;
         }
 
-        const glm::vec3 newPos = currentPos + movement;
+        const auto newPos = currentPos + movement;
 
         _pos[i] = newPos;
     }
@@ -168,9 +172,9 @@ void ObjectArray::Animation(float step)
 }
 
 template <class... Args>
-static bool SetUniform(ShaderProgram& prog, const char* name, Args... args)
+static auto SetUniform(ShaderProgram& prog, const char* name, Args... args)
 {
-    const bool uniformResult = prog.SetUniform(name, (args)...);
+    const auto uniformResult = prog.SetUniform(name, (args)...);
 
     auto ComposeErrorMessage = [name]() -> std::string
     {
@@ -185,7 +189,7 @@ static bool SetUniform(ShaderProgram& prog, const char* name, Args... args)
     return true;
 }
 
-template <typename F> static bool OglError(const char*, F&& f)
+template <typename F> static auto OglError(const char*, F&& f)
 {
     const auto error = glGetError();
 
@@ -197,8 +201,8 @@ template <typename F> static bool OglError(const char*, F&& f)
         std::string errorStr;
         errorStr.append(info._msgStr);
 
-        const auto           error = glGetError();
-        const unsigned char* err   = gluErrorString(error);
+        const auto error = glGetError();
+        const auto err   = gluErrorString(error);
 
         errorStr.append(" : ");
         errorStr.append((const char*)err);
@@ -264,11 +268,11 @@ bool RenderEngine::CreateScene()
     if (IsFalse(_shader.Init(), MSG_INFO("Shader setup failed.")))
         return false;
 
-    const bool fragmentShader = _shader.LoadFragmentShader(
+    const auto fragmentShader = _shader.LoadFragmentShader(
         "shader/fragment_head.glsl", "shader/volume_body.glsl");
     if (IsFalse(fragmentShader, MSG_INFO("Could not load fragment shader.")))
         return false;
-    const bool vertexShader = _shader.LoadVertexShader("shader/vertex.glsl");
+    const auto vertexShader = _shader.LoadVertexShader("shader/vertex.glsl");
     if (IsFalse(vertexShader, MSG_INFO("Could not load vertex shader.")))
         return false;
     if (IsFalse(_shader.Link(), MSG_INFO("Could not link shader.")))
@@ -302,26 +306,26 @@ bool RenderEngine::CreateScene()
         return false;
 
     // create six objects
-    for (int i = 0; i < 6; ++i)
+    for (auto i = 0; i < 6; ++i)
     {
         if (IsFalse(_objects.AddObject(), MSG_INFO("Could not add object.")))
             return false;
     }
 
     // define standard matrices
-    const glm::vec3 camPos = glm::vec3(0, 0, 2);
-    const glm::mat4 viewMatrix =
+    const auto camPos = glm::vec3(0, 0, 2);
+    const auto viewMatrix =
         glm::lookAt(camPos, glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
 
-    const glm::mat4 projectionMatrix =
+    const auto projectionMatrix =
         glm::perspectiveFov(1.0f, 1280.0f, 720.0f, 0.1f, 5.0f);
 
-    glm::mat4 viewPlaneModelMatrix = glm::mat4(1.0f);
+    auto viewPlaneModelMatrix = glm::mat4(1.0f);
     viewPlaneModelMatrix =
         glm::translate(viewPlaneModelMatrix, glm::vec3(-2, -0.75, 0));
     viewPlaneModelMatrix = glm::scale(viewPlaneModelMatrix, glm::vec3(4, 2, 2));
 
-    glm::mat4 groundPlaneModelMatrix = glm::mat4(1.0f);
+    auto groundPlaneModelMatrix = glm::mat4(1.0f);
     groundPlaneModelMatrix =
         glm::translate(groundPlaneModelMatrix, glm::vec3(-3, -1.5, -2));
     groundPlaneModelMatrix =
@@ -333,8 +337,8 @@ bool RenderEngine::CreateScene()
         if (IsFalse(_shader.Use(), MSG_INFO("Could not use shader.")))
             return false;
 
-        const glm::mat4 mv  = viewMatrix * viewPlaneModelMatrix;
-        const glm::mat4 MVP = projectionMatrix * mv;
+        const auto mv  = viewMatrix * viewPlaneModelMatrix;
+        const auto MVP = projectionMatrix * mv;
 
         if (!SetUniform(_shader, "u_mvp", MVP))
             return false;
@@ -406,8 +410,8 @@ void RenderEngine::UpdateScene(const SceneSettings& settings)
         pos.z = Z_POS;
 
         // color will be set in Animation()
-        glm::vec3 color(0.0);
-        int       index = 0;
+        glm::vec3 color{0.0};
+        auto      index = 0;
 
         if (IsFalse(_objects.AddObject(pos, color, index),
                     MSG_INFO("Could not add object")))
@@ -430,10 +434,10 @@ bool RenderEngine::Render()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    const glm::vec3* const posData     = _objects.GetPositionData();
-    const glm::vec3* const colorData   = _objects.GetColorData();
-    const int              posDataSize = _objects.GetDataSize();
-    const unsigned int     objectCnt   = _objects.GetObjectCount();
+    const auto posData     = _objects.GetPositionData();
+    const auto colorData   = _objects.GetColorData();
+    const auto posDataSize = _objects.GetDataSize();
+    const auto objectCnt   = _objects.GetObjectCount();
 
     {
         if (IsFalse(_shader.Use(), MSG_INFO("Could not use shader.")))
@@ -510,47 +514,47 @@ bool RenderEngine::CreateNoiseTexture()
     if (IsNull(_noiseTexture, MSG_INFO("Could not create OGL texture.")))
         return false;
 
-    const int width  = 256;
-    const int height = 256;
+    const auto width  = 256;
+    const auto height = 256;
 
     static_assert(width > 0, "Illegal value for width");
     static_assert(height > 0, "Illegal value for width");
 
     // TODO: change to one-component bitmap
-    const int components = 4;
+    const auto components = 4;
 
     // allocate data
-    const int      dataCnt = width * height * components;
-    GLubyte* const data    = new GLubyte[dataCnt];
+    const auto dataCnt = width * height * components;
+    auto       data    = new GLubyte[dataCnt];
 
     if (IsNullptr(data,
                   MSG_INFO("Could not allocate memory for noise texture.")))
         return false;
 
-    const float widthF  = float(width);
-    const float heightF = float(height);
-    const float scale   = 6.5f;
+    const auto widthF  = float(width);
+    const auto heightF = float(height);
+    const auto scale   = 6.5f;
 
-    for (int y = 0; y < height; ++y)
+    for (auto y = 0; y < height; ++y)
     {
-        const float yf = float(y) / heightF;
+        const auto yf = float(y) / heightF;
 
-        for (int x = 0; x < width; ++x)
+        for (auto x = 0; x < width; ++x)
         {
-            const float xf = float(x) / widthF;
+            const auto xf = float(x) / widthF;
 
             // todo: we could also store different noises in different channels
-            const glm::vec2 pos(xf * scale, yf * scale);
-            const float     noise   = glm::perlin(pos);
-            const float     result  = (noise + 1.0f) * .5f;
-            const GLubyte   byteRes = GLubyte(result * 255.9f);
+            const glm::vec2 pos{xf * scale, yf * scale};
+            const auto      noise   = glm::perlin(pos);
+            const auto      result  = (noise + 1.0f) * .5f;
+            const auto      byteRes = GLubyte(result * 255.9f);
 
-            const int componentOffset = (y * width + x) * components;
+            const auto componentOffset = (y * width + x) * components;
 
-            for (int c = 0; c < components; ++c)
+            for (auto c = 0; c < components; ++c)
             {
-                const int componentIndex = componentOffset + c;
-                data[componentIndex]     = byteRes;
+                const auto componentIndex = componentOffset + c;
+                data[componentIndex]      = byteRes;
             }
         }
     }
