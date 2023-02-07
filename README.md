@@ -1,26 +1,31 @@
-# OpenGL GLSL Volume Rendering
+# OpenGL/GLSL Volume Rendering
 
-Volume rendering experiments in GLSL
+![Volumetric Rendering](screenshot.jpg)
+
+Volume rendering experiments in OpenGL/GLSL for Windows.
 
 
 Branch is **WIP**.
 
 # Dependencies
 
-Uses *conan* to install:
+Project uses *conan* to install:
 * GLM: https://github.com/g-truc/glm
 * GLAD: https://github.com/Dav1dde/glad
 
 
 # Build
 
+Build with *conan* and *cmake*:
+
 ```
 mkdir build
 conan install . -if build --build=missing
-cd build
-cmake .. 
-cmake --build .
+cmake -Bbuild
+cmake --build build --config Release --target INSTALL
 ```
+
+The executable with shaders can be found in ```build/product```.
 
 # Usage
 
