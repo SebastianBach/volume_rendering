@@ -14,14 +14,20 @@ add_executable(volumedemo)
 
 target_sources(volumedemo PRIVATE 
     source/eventloop.cpp
+    source/eventloop.h
     source/modeling.cpp
+    source/modeling.h
     source/window.cpp
+    source/window.h
     source/polygonobject.cpp
+    source/polygonobject.h
     source/program.cpp
+    source/program.h
     source/renderengine.cpp
+    source/renderengine.h
     source/log.cpp
-    source/volumedemo.cpp
-    source/renderengine.cpp)
+    source/log.h
+    source/volumedemo.cpp)
 
 target_include_directories(volumedemo PUBLIC source)
 include_directories(${CONAN_INCLUDE_DIRS})
@@ -31,3 +37,7 @@ target_link_libraries(volumedemo ${OPENGL_LIBRARIES}  )
 target_link_libraries(volumedemo ${CONAN_LIBS})
 
 set_property(TARGET volumedemo PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+
+file(MAKE_DIRECTORY  ${CMAKE_BINARY_DIR}/product)
+install (TARGETS volumedemo RUNTIME DESTINATION ${CMAKE_BINARY_DIR}/product)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/shader DESTINATION ${CMAKE_BINARY_DIR}/product)
