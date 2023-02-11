@@ -4,16 +4,16 @@
 
 //---------------------------------------------------------------------------
 /// Stores the polygon data in the given PolygonObject.
-/// @param[out]	poly		The target PolygonObject.
-/// @param[in]	vertexSize	The size of vertex data.
-/// @param[in]	vertexData	Vertex data array.
-/// @param[in]	normalSize	The size of normal data.
-/// @param[in]	normalData	Normal data array.
-/// @param[in]	uvSize		The size of UV data.
-/// @param[in]	uvData		UV data array.
-/// @param[in]	indexSize	The size of indice data.
-/// @param[in]	indexData	Index data array.
-/// @return					False if an error occurred.
+/// @param[out] poly        The target PolygonObject.
+/// @param[in]  vertexSize  The size of vertex data.
+/// @param[in]  vertexData  Vertex data array.
+/// @param[in]  normalSize  The size of normal data.
+/// @param[in]  normalData  Normal data array.
+/// @param[in]  uvSize      The size of UV data.
+/// @param[in]  uvData      UV data array.
+/// @param[in]  indexSize   The size of indice data.
+/// @param[in]  indexData   Index data array.
+/// @return                 False if an error occurred.
 //---------------------------------------------------------------------------
 static auto SetPolyData(PolygonObject& poly, int vertexSize,
                         float* const vertexData, int normalSize,
@@ -41,12 +41,12 @@ static auto SetPolyData(PolygonObject& poly, int vertexSize,
 
 //---------------------------------------------------------------------------
 /// Stores a vector in the given vector array.
-/// @param[in]	v		The vector array.
-/// @param[in]	index	The index to store the vector at.
-/// @param[in]	count	Maximum number of elements in the vector array.
-/// @param[in]	x		Vector x component.
-/// @param[in]	y		Vector y component.
-/// @param[in]	z		Vector z component.
+/// @param[in]  v       The vector array.
+/// @param[in]  index   The index to store the vector at.
+/// @param[in]  count   Maximum number of elements in the vector array.
+/// @param[in]  x       Vector x component.
+/// @param[in]  y       Vector y component.
+/// @param[in]  z       Vector z component.
 //---------------------------------------------------------------------------
 void SetVector(float* const v, unsigned int index, unsigned int count, float x,
                float y, float z)
@@ -73,11 +73,11 @@ void SetVector(float* const v, unsigned int index, unsigned int count, float x,
 
 //---------------------------------------------------------------------------
 /// Stores a set of UV coordinates in the given array.
-/// @param[in]	v		The UV array.
-/// @param[in]	index	The index to store the UV set at.
-/// @param[in]	count	Maximum number of elements in the UV array.
-/// @param[in]	uValue	UV u-value.
-/// @param[in]	uValue	UV v-value
+/// @param[in]  v       The UV array.
+/// @param[in]  index   The index to store the UV set at.
+/// @param[in]  count   Maximum number of elements in the UV array.
+/// @param[in]  uValue  UV u-value.
+/// @param[in]  uValue  UV v-value
 //---------------------------------------------------------------------------
 static void SetUV(float* const v, unsigned int index, unsigned int count,
                   float uValue, float vValue)
@@ -103,12 +103,12 @@ static void SetUV(float* const v, unsigned int index, unsigned int count,
 
 //---------------------------------------------------------------------------
 /// Stores a set of indice in the given index array.
-/// @param[in]	v		The index array.
-/// @param[in]	index	The index to store the indice at.
-/// @param[in]	count	Maximum number of elements in the index array.
-/// @param[in]	a		The first index.
-/// @param[in]	b		The second index.
-/// @param[in]	c		The third index.
+/// @param[in]  v       The index array.
+/// @param[in]  index   The index to store the indice at.
+/// @param[in]  count   Maximum number of elements in the index array.
+/// @param[in]  a       The first index.
+/// @param[in]  b       The second index.
+/// @param[in]  c       The third index.
 //---------------------------------------------------------------------------
 void SetTriangle(unsigned int* const v, unsigned int index, unsigned int count,
                  int a, int b, int c)

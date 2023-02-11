@@ -7,85 +7,24 @@
 
 static bool g_unitTestMode = false;
 
-bool UnitTestLogSystem()
+void error_sys_intern::SetUnitTestMode()
 {
     g_unitTestMode = true;
-
-    std::vector<std::string> foundErrors;
-
-    // vector::push_back() might throw exception bad_alloc
-    try
-    {
-        const int* const n_ptr = nullptr;
-        if (IsNullptr(n_ptr, MSG_INFO("")) == false)
-            foundErrors.push_back(
-                std::string("False negative in IsNullptr())"));
-
-        const int iValue = 123;
-        if (IsNullptr(&iValue, MSG_INFO("")) == true)
-            foundErrors.push_back(
-                std::string("False positive in IsNullptr())"));
-
-        if (IsFalse(false, MSG_INFO("")) == false)
-            foundErrors.push_back(std::string("False negative in IsFalse())"));
-
-        if (IsFalse(true, MSG_INFO("")) == true)
-            foundErrors.push_back(std::string("False positive in IsFalse())"));
-
-        if (IsNull(0, MSG_INFO("")) == false)
-            foundErrors.push_back(std::string("False negative in IsNull())"));
-
-        if (IsNull(1, MSG_INFO("")) == true)
-            foundErrors.push_back(std::string("False positiv in IsNull())"));
-
-        if (IsValue(1, 0, MSG_INFO("")) == true)
-            foundErrors.push_back(std::string("False positive in IsValue()"));
-
-        if (IsValue(1, 1, MSG_INFO("")) == false)
-            foundErrors.push_back(std::string("False negative in IsValue()"));
-
-        if (IsNotValue(1, 0, MSG_INFO("")) == false)
-            foundErrors.push_back(
-                std::string("False negative in IsNotValue()"));
-
-        if (IsNotValue(1, 1, MSG_INFO("")) == true)
-            foundErrors.push_back(
-                std::string("False positive in IsNotValue()"));
-    }
-    catch (std::bad_alloc& ba)
-    {
-        g_unitTestMode = false;
-        ErrorMessage(MSG_INFO(ba.what()));
-        return false;
-    }
-
-    g_unitTestMode = false;
-
-    // report errors
-    if (foundErrors.size() > 0)
-    {
-        for (const auto& error : foundErrors)
-            ErrorMessage(MSG_INFO(error.c_str()));
-
-        return false;
-    }
-
-    return true;
 }
 
 //---------------------------------------------------------------------------
 /// Returns true if the given message type is an error.
-/// @param[in]	type		The message tpe to check
-/// @return					True if the message type is Msg::TypeError.
+/// @param[in]  type        The message tpe to check
+/// @return                 True if the message type is Msg::TypeError.
 //---------------------------------------------------------------------------
-static bool IsError(error_sys_intern::MsgType type)
+static auto IsError(error_sys_intern::MsgType type)
 {
     return type == error_sys_intern::MsgType::Error;
 }
 
 //---------------------------------------------------------------------------
 /// Prints the current time.
-/// @param[in]	stream		The file stream to write into.
+/// @param[in]  stream      The file stream to write into.
 //---------------------------------------------------------------------------
 static void PrintTime(std::ofstream& stream)
 {
@@ -109,11 +48,11 @@ static void PrintTime(std::ofstream& stream)
 
 //---------------------------------------------------------------------------
 /// Prints error information to the given stream and the console.
-/// @param[in]  stream		The stream to write into.
-/// @param[in]	type		The message type. Must be MsgType::Error.
-/// @param[in]	file		The file name.
-/// @param[in]	line		The line number.
-/// @param[in]	function	The function name.
+/// @param[in]  stream      The stream to write into.
+/// @param[in]  type        The message type. Must be MsgType::Error.
+/// @param[in]  file        The file name.
+/// @param[in]  line        The line number.
+/// @param[in]  function    The function name.
 //---------------------------------------------------------------------------
 static void PrintError(std::ofstream& stream, error_sys_intern::MsgType type,
                        const char* file, int line, const char* function)
@@ -147,8 +86,8 @@ static void PrintError(std::ofstream& stream, error_sys_intern::MsgType type,
 
 //---------------------------------------------------------------------------
 /// Prints a message to the stream an the console.
-/// @param[in]	stream		Stream to write to.
-/// @param[in]	message		The message to print.
+/// @param[in]  stream      Stream to write to.
+/// @param[in]  message     The message to print.
 //---------------------------------------------------------------------------
 static void PrintMessage(std::ofstream& stream, const char* message)
 {

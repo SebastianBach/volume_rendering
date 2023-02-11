@@ -18,46 +18,46 @@ public:
     ~PolygonObject();
 
     //---------------------------------------------------------------------------
-    /// Prepears the object.
-    /// @return				False if an error occurred.
+    /// Prepares the object.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool Init();
 
     //---------------------------------------------------------------------------
     /// Stores vertex data.
-    /// @param[in]	count	The number of all float elements.
-    /// @param[in]	values	An array with float values.
-    /// @return				False if an error occurred.
+    /// @param[in]  count   The number of all float elements.
+    /// @param[in]  values  An array with float values.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool InitVertice(int count, float* values);
 
     //---------------------------------------------------------------------------
     /// Stores UV data.
-    /// @param[in]	count	The number of all float elements.
-    /// @param[in]	values	An array with float values.
-    /// @return				False if an error occurred.
+    /// @param[in]  count   The number of all float elements.
+    /// @param[in]  values  An array with float values.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool InitUVs(int count, float* values);
 
     //---------------------------------------------------------------------------
     /// Stores normal data.
-    /// @param[in]	count	The number of all float elements.
-    /// @param[in]	values	An array with float values.
-    /// @return				False if an error occurred.
+    /// @param[in]  count   The number of all float elements.
+    /// @param[in]  values  An array with float values.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool InitNormals(int count, float* values);
 
     //---------------------------------------------------------------------------
     /// Stores index data.
-    /// @param[in]	count	The number of all int elements.
-    /// @param[in]	values	An array with unsigned int values.
-    /// @return				False if an error occurred.
+    /// @param[in]  count   The number of all int elements.
+    /// @param[in]  values  An array with unsigned int values.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool InitIndice(int count, unsigned int* values);
 
     //---------------------------------------------------------------------------
     /// Draws the polygon object.
-    /// @return				False if an error occurred.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool Draw() const;
 

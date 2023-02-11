@@ -1,6 +1,4 @@
-from conans import ConanFile, CMake
-
-
+from conans import ConanFile
 class VolumeRendering(ConanFile):
     name = "VolumeRendering"
     version = "0.1"
@@ -9,6 +7,7 @@ class VolumeRendering(ConanFile):
     default_options = {"shared": False}
     requires = (
         "glm/0.9.9.8",
-        "glad/0.1.36"
+        "glad/0.1.36",
+        "gtest/1.8.1"
     )
     generators = "cmake"

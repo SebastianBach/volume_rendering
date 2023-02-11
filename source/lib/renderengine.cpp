@@ -1,14 +1,8 @@
 #include "renderengine.h"
+
 #include "modeling.h"
-
-// see https://github.com/Dav1dde/glad
-#include <glad/glad.h>
-
 #include "log.h"
-#include <cstdlib>
-#include <string>
-
-#include "glm/gtc/matrix_transform.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 #include <gl/GLU.h>
 #include <glm/gtx/color_space.hpp>
 
@@ -29,7 +23,7 @@ ObjectArray::ObjectArray()
                   "Only array size of 256 is guaranteed.");
 }
 
-ObjectArray::~ObjectArray() {}
+ObjectArray::~ObjectArray() = default;
 
 bool ObjectArray::AddObject(glm::vec3& pos, glm::vec3& color, int& index)
 {
@@ -65,7 +59,7 @@ bool ObjectArray::AddObject()
     return true;
 }
 
-unsigned int ObjectArray::GetObjectCount()
+unsigned int ObjectArray::GetObjectCount() const
 {
     return _count;
 }
@@ -103,7 +97,7 @@ glm::vec3* ObjectArray::GetColorData()
     return &_colors.front();
 }
 
-int ObjectArray::GetDataSize()
+int ObjectArray::GetDataSize() const
 {
     return _count * 3;
 }
@@ -201,8 +195,8 @@ template <typename F> static auto OglError(const char*, F&& f)
         std::string errorStr;
         errorStr.append(info._msgStr);
 
-        const auto error = glGetError();
-        const auto err   = gluErrorString(error);
+        const auto  gl_error = glGetError();
+        const auto* err      = gluErrorString(gl_error);
 
         errorStr.append(" : ");
         errorStr.append((const char*)err);
@@ -218,9 +212,10 @@ RenderEngine::RenderEngine()
 {
     _noiseTexture = 0;
     _step         = 0.0;
+    _settings     = {};
 }
 
-RenderEngine::~RenderEngine() {}
+RenderEngine::~RenderEngine() = default;
 
 bool RenderEngine::Init()
 {
@@ -306,7 +301,8 @@ bool RenderEngine::CreateScene()
         return false;
 
     // create six objects
-    for (auto i = 0; i < 6; ++i)
+    const auto startCount = 6;
+    for (auto i = 0; i < startCount; ++i)
     {
         if (IsFalse(_objects.AddObject(), MSG_INFO("Could not add object.")))
             return false;
@@ -346,10 +342,10 @@ bool RenderEngine::CreateScene()
             return false;
         if (!SetUniform(_shader, "u_camPos", camPos))
             return false;
-        if (!SetUniform(_shader, "u_noiseTexture", unsigned int(0)))
+        if (!SetUniform(_shader, "u_noiseTexture", 0u))
             return false;
 
-        _shader.End();
+        ShaderProgram::End();
     }
 
     {
@@ -370,7 +366,7 @@ bool RenderEngine::CreateScene()
         if (!SetUniform(_groundShader, "u_camPos", camPos))
             return false;
 
-        _groundShader.End();
+        ShaderProgram::End();
     }
 
     InfoMessage(MSG_INFO(("Scene setup done...")));
@@ -434,10 +430,10 @@ bool RenderEngine::Render()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    const auto posData     = _objects.GetPositionData();
-    const auto colorData   = _objects.GetColorData();
-    const auto posDataSize = _objects.GetDataSize();
-    const auto objectCnt   = _objects.GetObjectCount();
+    const auto* posData     = _objects.GetPositionData();
+    const auto* colorData   = _objects.GetColorData();
+    const auto  posDataSize = _objects.GetDataSize();
+    const auto  objectCnt   = _objects.GetObjectCount();
 
     {
         if (IsFalse(_shader.Use(), MSG_INFO("Could not use shader.")))
@@ -447,7 +443,7 @@ bool RenderEngine::Render()
             return false;
         if (!SetUniform(_shader, "u_animation", _step))
             return false;
-        if (!SetUniform(_shader, "u_noise", _settings._noise))
+        if (!SetUniform(_shader, "u_noise", _settings.GetNoise()))
             return false;
         if (!SetUniform(_shader, "u_objectCnt", objectCnt))
             return false;
@@ -459,7 +455,7 @@ bool RenderEngine::Render()
         if (IsFalse(_viewPlane.Draw(), MSG_INFO("Could not draw view plane.")))
             return false;
 
-        _shader.End();
+        ShaderProgram::End();
     }
 
     {
@@ -477,13 +473,13 @@ bool RenderEngine::Render()
             return false;
         if (!SetUniform(_groundShader, "u_objectCnt", objectCnt))
             return false;
-        if (!SetUniform(_groundShader, "u_noise", _settings._noise))
+        if (!SetUniform(_groundShader, "u_noise", _settings.GetNoise()))
             return false;
 
         if (IsFalse(_ground.Draw(), MSG_INFO("Could not draw ground.")))
             return false;
 
-        _groundShader.End();
+        ShaderProgram::End();
     }
 
     if (OglError(MSG_INFO("Rendering failed.")))
@@ -525,7 +521,7 @@ bool RenderEngine::CreateNoiseTexture()
 
     // allocate data
     const auto dataCnt = width * height * components;
-    auto       data    = new GLubyte[dataCnt];
+    auto*      data    = new GLubyte[dataCnt];
 
     if (IsNullptr(data,
                   MSG_INFO("Could not allocate memory for noise texture.")))

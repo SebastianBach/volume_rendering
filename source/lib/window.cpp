@@ -17,8 +17,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_PAINT:
     {
-        PAINTSTRUCT ps;
-        auto        hdc = BeginPaint(hwnd, &ps);
+        PAINTSTRUCT            ps;
+        [[maybe_unused]] auto* hdc = BeginPaint(hwnd, &ps);
 
         // FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
         // we should do rendering here
@@ -47,8 +47,8 @@ OSWindow::~OSWindow()
 bool OSWindow::Init(int w, int h)
 {
     // getting the hinstance
-    auto module    = GetModuleHandle(NULL);
-    auto hinstance = (HINSTANCE)module;
+    auto* module    = GetModuleHandle(NULL);
+    auto* hinstance = (HINSTANCE)module;
 
     HWND windowHandle;
 
@@ -61,7 +61,7 @@ bool OSWindow::Init(int w, int h)
     windowClass.style       = 0;
     windowClass.lpfnWndProc = WindowProc; // window function
 
-    auto className = "VolumeDemo Window";
+    const auto* className = "VolumeDemo Window";
 
     windowClass.cbClsExtra    = 0;
     windowClass.cbWndExtra    = 0;
@@ -108,7 +108,7 @@ bool OSWindow::CreateOglContext()
     if (IsNullptr(_handle, MSG_INFO("Handle not set.")))
         return false;
 
-    auto hdc = GetDC((HWND)_handle);
+    auto* hdc = GetDC((HWND)_handle);
 
     if (IsNullptr(hdc, MSG_INFO("Could not get device context.")))
         return false;
@@ -189,10 +189,10 @@ bool OSWindow::RemoveContext()
     // kill OpenGL context
     wglMakeCurrent(NULL, NULL);
 
-    auto hglrc = _oglContext;
+    auto* hglrc = _oglContext;
     wglDeleteContext(hglrc);
-    auto hwnd = (HWND)_handle;
-    auto hdc  = _hdc;
+    auto* hwnd = (HWND)_handle;
+    auto* hdc  = _hdc;
     ReleaseDC(hwnd, hdc);
 
     return true;
@@ -232,10 +232,10 @@ bool OSWindow::Close()
 
     DestroyWindow((HWND)_handle);
 
-    auto className = "VolumeDemo Window";
+    const auto* className = "VolumeDemo Window";
 
-    auto module    = GetModuleHandle(NULL);
-    auto hinstance = (HINSTANCE)module;
+    auto* module    = GetModuleHandle(NULL);
+    auto* hinstance = (HINSTANCE)module;
 
     UnregisterClass(className, hinstance);
 

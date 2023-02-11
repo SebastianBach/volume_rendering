@@ -12,17 +12,22 @@ Branch is **WIP**.
 Project uses *conan* to install:
 * GLM: https://github.com/g-truc/glm
 * GLAD: https://github.com/Dav1dde/glad
+* GoogleTest: https://github.com/google/googletest
 
 
 # Build
 
-Build with *conan* and *cmake*:
+To test and build, run *conan* and *cmake*:
 
 ```
 mkdir build
-conan install . -if build --build=missing
-cmake -Bbuild
-cmake --build build --config Release --target INSTALL
+conan install . -if build -s build_type=Release -s compiler.runtime=MD
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build . --config Release --target volume_lib
+cmake --build . --config Release --target unit_tests
+ctest -C Release  -VV
+cmake --build . --config Release --target INSTALL
 ```
 
 The executable with shaders can be found in ```build/product```.

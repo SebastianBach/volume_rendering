@@ -13,10 +13,10 @@
 static constexpr GLint LOCATION_FAIL = -1;
 
 //---------------------------------------------------------------------------
-/// Utlity function to load a file.
-/// @param[in]	filename		The file location.
-/// @param[out]	text			The string to contain the file content.
-/// @return						False if an error occurred.
+/// Utility function to load a file.
+/// @param[in]  filename        The file location.
+/// @param[out] text            The string to contain the file content.
+/// @return                     False if an error occurred.
 //---------------------------------------------------------------------------
 static auto LoadFile(const char* filename, std::string& text)
 {
@@ -48,8 +48,8 @@ static auto LoadFile(const char* filename, std::string& text)
 
 //---------------------------------------------------------------------------
 /// Utility function that returns an error message.
-/// @param[in]	name	The name of an uniform variable.
-/// @return				The formatted error string.
+/// @param[in]  name    The name of an uniform variable.
+/// @return             The formatted error string.
 //---------------------------------------------------------------------------
 static auto GetUniformErrorString(const char* name)
 {
@@ -188,7 +188,7 @@ bool ShaderProgram::MakeShader(unsigned int type, const std::string& text,
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 
         // allocate memory for error message
-        auto infoLog = new GLchar[infoLogLength];
+        auto* infoLog = new GLchar[infoLogLength];
         if (IsNullptr(infoLog,
                       MSG_INFO("Could not allocate memory for error message.")))
             return false;
@@ -239,8 +239,7 @@ bool ShaderProgram::SetUniform(const char* name, const glm::mat4& m)
         return false;
 
     const auto location = GetUniformLocation(name);
-    if (IsValue(location, LOCATION_FAIL,
-                MSG_INFO(GetUniformErrorString(name).c_str())))
+    if (IsValue(location, LOCATION_FAIL, MSG_INFO(GetUniformErrorString(name))))
         return false;
 
     glUniformMatrix4fv(location, 1, GL_FALSE, &m[0][0]);
@@ -254,8 +253,7 @@ bool ShaderProgram::SetUniform(const char* name, const glm::vec3& v)
         return false;
 
     const auto location = GetUniformLocation(name);
-    if (IsValue(location, LOCATION_FAIL,
-                MSG_INFO(GetUniformErrorString(name).c_str())))
+    if (IsValue(location, LOCATION_FAIL, MSG_INFO(GetUniformErrorString(name))))
         return false;
 
     glUniform3fv(location, 1, &v[0]);
@@ -269,8 +267,7 @@ bool ShaderProgram::SetUniform(const char* name, const glm::float32& v)
         return false;
 
     const auto location = GetUniformLocation(name);
-    if (IsValue(location, LOCATION_FAIL,
-                MSG_INFO(GetUniformErrorString(name).c_str())))
+    if (IsValue(location, LOCATION_FAIL, MSG_INFO(GetUniformErrorString(name))))
         return false;
 
     glUniform1f(location, v);
@@ -284,8 +281,7 @@ bool ShaderProgram::SetUniform(const char* name, unsigned int v)
         return false;
 
     const auto location = GetUniformLocation(name);
-    if (IsValue(location, LOCATION_FAIL,
-                MSG_INFO(GetUniformErrorString(name).c_str())))
+    if (IsValue(location, LOCATION_FAIL, MSG_INFO(GetUniformErrorString(name))))
         return false;
 
     glUniform1i(location, v);
@@ -303,8 +299,7 @@ bool ShaderProgram::SetUniform(const char* name, const glm::vec3* const v,
         return false;
 
     const auto location = GetUniformLocation(name);
-    if (IsValue(location, LOCATION_FAIL,
-                MSG_INFO(GetUniformErrorString(name).c_str())))
+    if (IsValue(location, LOCATION_FAIL, MSG_INFO(GetUniformErrorString(name))))
         return false;
 
     glUniform3fv(location, count, glm::value_ptr(v[0]));
@@ -328,7 +323,7 @@ bool ShaderProgram::Use() const
     return true;
 }
 
-void ShaderProgram::End() const
+void ShaderProgram::End()
 {
     glUseProgram(0);
 }

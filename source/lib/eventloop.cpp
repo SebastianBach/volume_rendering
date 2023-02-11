@@ -5,11 +5,12 @@
 #include "log.h"
 #include "renderengine.h"
 #include <iostream>
+#include "window.h"
 
 //---------------------------------------------------------------------------
 /// Converts the key ID to a render mode ID.
-/// @param[in]	key			Character ID.
-/// @param[out]	renderMode	Render mode ID (0 - 9).
+/// @param[in]  key         Character ID.
+/// @param[out] renderMode  Render mode ID (0 - 9).
 //---------------------------------------------------------------------------
 static void KeyToRenderMode(const TCHAR& key, unsigned int& renderMode)
 {
@@ -25,8 +26,8 @@ static void KeyToRenderMode(const TCHAR& key, unsigned int& renderMode)
 
 //---------------------------------------------------------------------------
 /// Converts the screen space x coordinate to world space.
-/// @param[in]	x			Screen space x-coordinate.
-/// @param[out]	xf			World space x-coordinate.
+/// @param[in]  x           Screen space x-coordinate.
+/// @param[out] xf          World space x-coordinate.
 //---------------------------------------------------------------------------
 static void GetXCoordinate(int x, float& xf)
 {
@@ -35,8 +36,8 @@ static void GetXCoordinate(int x, float& xf)
 
 //---------------------------------------------------------------------------
 /// Converts the screen space y coordinate to world space.
-/// @param[in]	y			Screen space y-coordinate.
-/// @param[out]	yf			World space y-coordinate.
+/// @param[in]  y           Screen space y-coordinate.
+/// @param[out] yf          World space y-coordinate.
 //---------------------------------------------------------------------------
 static void GetYCoordinate(int y, float& yf)
 {
@@ -45,10 +46,10 @@ static void GetYCoordinate(int y, float& yf)
 
 //---------------------------------------------------------------------------
 /// Handles key and mouse events.
-/// @param[out]	run			Set to false if the application should end (ESC
+/// @param[out] run         Set to false if the application should end (ESC
 /// pressed).
-/// @param[out] settings	The settings object that will be edited.
-/// @param[in]	msg			The current event message.
+/// @param[out] settings    The settings object that will be edited.
+/// @param[in]  msg         The current event message.
 //---------------------------------------------------------------------------
 static void HandleEvents(bool& run, SceneSettings& settings, const MSG& msg)
 {
@@ -195,7 +196,7 @@ void RunLoop(RenderEngine& engine, OSWindow& window)
         // render scene
         const auto renderResult = engine.Render();
 
-        if (renderResult == false)
+        if (!renderResult)
         {
             ErrorMessage(MSG_INFO("Error on rendering."));
             run = false;
@@ -203,7 +204,7 @@ void RunLoop(RenderEngine& engine, OSWindow& window)
 
         // swap buffers
         const auto swapResult = window.Swap();
-        if (swapResult == false)
+        if (!swapResult)
             run = false;
     }
 }

@@ -21,45 +21,45 @@ public:
 
     //---------------------------------------------------------------------------
     /// Creates the window with the given size.
-    /// @param[in]	w		Window width.
-    /// @param[in]	h		Window height.
-    /// @return				False if an error occurred.
+    /// @param[in]  w       Window width.
+    /// @param[in]  h       Window height.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool Init(int w, int h);
 
     //---------------------------------------------------------------------------
     /// Displays the window.
-    /// @return				False if an error occurred.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool Show();
 
     //---------------------------------------------------------------------------
     /// Closes the window.
-    /// @return				False if an error occurred.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool Close();
 
     //---------------------------------------------------------------------------
     /// Creates an OpenGL context.
-    /// @return				False if an error occurred.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool CreateOglContext();
 
     //---------------------------------------------------------------------------
     /// Makes the creates context the current context.
-    /// @return				False if an error occurred.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool MakeCurrentContext();
 
     //---------------------------------------------------------------------------
     /// Removes the created context.
-    /// @return				False if an error occurred.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool RemoveContext();
 
     //---------------------------------------------------------------------------
     /// Swaps windows buffers.
-    /// @return				False if an error occurred.
+    /// @return             False if an error occurred.
     //---------------------------------------------------------------------------
     bool Swap() const;
 

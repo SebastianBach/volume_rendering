@@ -1,0 +1,9 @@
+Checks: > 
+    modernize-loop-convert,
+    modernize-make-unique,
+    modernize-use-auto,
+    modernize-use-bool-literals,
+    readability-qualified-auto,
+    readability-simplify-boolean-expr,
+    readability-redundant-string-cstr,
+    readability-make-member-function-const
