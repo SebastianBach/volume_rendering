@@ -2,8 +2,8 @@ add_executable(volumedemo)
 
 target_sources(volumedemo PRIVATE volumedemo.cpp)
 
-include_directories(${CONAN_INCLUDE_DIRS})
-include_directories(${OPENGL_INCLUDE_DIRS})
+target_include_directories(volumedemo PRIVATE ${CONAN_INCLUDE_DIRS})
+target_include_directories(volumedemo PRIVATE ${OPENGL_INCLUDE_DIRS})
 
 
 target_link_libraries(volumedemo PRIVATE ${OPENGL_LIBRARIES})
