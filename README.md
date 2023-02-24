@@ -19,13 +19,12 @@ To test and build, run *conan* and *cmake*:
 
 ```
 mkdir build
-conan install . -if build -s build_type=Release -s compiler.runtime=MD
 cd build
+conan install .. -s build_type=Release -s compiler.runtime=MD
 cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . --config Release --target volume_lib
-cmake --build . --config Release --target unit_tests
+cmake --build . --config Release
 ctest -C Release  -VV
-cmake --build . --config Release --target INSTALL
+cmake --install .
 ```
 
 The executable with shaders can be found in ```build/product```.

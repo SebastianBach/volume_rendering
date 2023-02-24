@@ -1,0 +1,7 @@
+[requires]
+glm/0.9.9.8
+glad/0.1.36
+gtest/1.8.1
+
+[generators]
+cmake
